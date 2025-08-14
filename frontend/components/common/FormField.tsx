@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 import {
   TextField,
   FormControl,
@@ -15,7 +15,7 @@ import {
   SelectProps,
   AutocompleteProps,
   SwitchProps,
-} from '@mui/material';
+} from "@mui/material";
 
 export interface BaseFieldProps {
   name: string;
@@ -32,7 +32,15 @@ interface TextFieldComponentProps extends BaseFieldProps {
   value: string;
   onChange: (value: string) => void;
   onBlur?: () => void;
-  type?: 'text' | 'email' | 'password' | 'number' | 'tel' | 'url' | 'date';
+  type?:
+    | "text"
+    | "email"
+    | "password"
+    | "number"
+    | "tel"
+    | "url"
+    | "date"
+    | "datetime-local";
   multiline?: boolean;
   rows?: number;
   placeholder?: string;
@@ -48,7 +56,7 @@ export const FormTextField: React.FC<TextFieldComponentProps> = ({
   error,
   touched,
   helperText,
-  type = 'text',
+  type = "text",
   multiline = false,
   rows,
   placeholder,
@@ -61,7 +69,7 @@ export const FormTextField: React.FC<TextFieldComponentProps> = ({
       name={name}
       label={label}
       value={value}
-      onChange={e => onChange(e.target.value)}
+      onChange={(e) => onChange(e.target.value)}
       onBlur={onBlur}
       type={type}
       multiline={multiline}
@@ -112,12 +120,12 @@ export const FormSelectField: React.FC<SelectFieldProps> = ({
       <Select
         name={name}
         value={value}
-        onChange={e => onChange(e.target.value as string | number)}
+        onChange={(e) => onChange(e.target.value as string | number)}
         onBlur={onBlur}
         label={label}
         {...selectProps}
       >
-        {options.map(option => (
+        {options.map((option) => (
           <MenuItem
             key={option.value}
             value={option.value}
@@ -179,7 +187,7 @@ export const FormAutocompleteField = <T,>({
       freeSolo={freeSolo}
       multiple={multiple as any}
       disabled={disabled}
-      renderInput={params => (
+      renderInput={(params) => (
         <TextField
           {...params}
           name={name}
@@ -224,7 +232,7 @@ export const FormSwitchField: React.FC<SwitchFieldProps> = ({
           <Switch
             name={name}
             checked={checked}
-            onChange={e => onChange(e.target.checked)}
+            onChange={(e) => onChange(e.target.checked)}
             onBlur={onBlur}
             required={required}
             {...switchProps}

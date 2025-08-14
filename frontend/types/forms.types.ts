@@ -17,7 +17,7 @@ export interface PatientFormData {
   phone: string;
   cpf: string;
   birthDate: string;
-  gender: 'Masculino' | 'Feminino' | 'Outro';
+  gender: "Masculino" | "Feminino" | "Outro";
   address: string;
   allergies?: string;
   medicalHistory?: string;
@@ -50,6 +50,17 @@ export interface CidFormData {
   name: string;
   description?: string;
   category?: string;
+}
+
+export interface AppointmentFormData {
+  title: string;
+  description?: string;
+  appointmentDate: string;
+  duration?: number;
+  status?: string;
+  type?: string;
+  notes?: string;
+  patientId: number;
 }
 
 // Form State Types

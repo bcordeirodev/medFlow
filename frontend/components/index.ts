@@ -1,20 +1,31 @@
 // Auth Components
-export { LoginForm } from './auth';
+export { LoginForm } from "./auth";
 
 // Common Components
-export { Dashboard } from './common';
+export { Dashboard } from "./common";
 
 // Patient Components
-export { PatientsList, PatientDetails } from './patients';
+export { PatientsList, PatientDetails } from "./patients";
 
 // Prescription Components
-export { PrescriptionsList, PrescriptionDetails, NewPrescription } from './prescriptions';
+export {
+  PrescriptionsList,
+  PrescriptionDetails,
+  NewPrescription,
+} from "./prescriptions";
 
 // Medicine Components
-export { MedicinesList, MedicineDetails } from './medicines';
+export { MedicinesList, MedicineDetails } from "./medicines";
 
 // CID Components
-export { CidsList, CidForm, CidDetails } from './cids';
+export { CidsList, CidForm, CidDetails } from "./cids";
+
+// Appointment Components
+export {
+  AppointmentsList,
+  AppointmentForm,
+  AppointmentDetails,
+} from "./appointments";
 
 // UI Components
-export { RichTextEditor } from './ui'; 
+export { RichTextEditor } from "./ui";

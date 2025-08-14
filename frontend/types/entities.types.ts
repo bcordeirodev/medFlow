@@ -11,7 +11,7 @@ export interface User extends BaseEntity {
   email: string;
   crm: string;
   isActive: boolean;
-  role?: 'DOCTOR' | 'ADMIN';
+  role?: "DOCTOR" | "ADMIN";
 }
 
 // Patient Entity
@@ -21,7 +21,7 @@ export interface Patient extends BaseEntity {
   phone: string;
   cpf: string;
   birthDate: string;
-  gender: 'Masculino' | 'Feminino' | 'Outro';
+  gender: "Masculino" | "Feminino" | "Outro";
   address: string;
   allergies?: string;
   medicalHistory?: string;
@@ -69,10 +69,44 @@ export interface Cid extends BaseEntity {
   medicines?: Medicine[];
 }
 
+// Appointment Enums
+export enum AppointmentStatus {
+  SCHEDULED = "scheduled",
+  CONFIRMED = "confirmed",
+  COMPLETED = "completed",
+  CANCELLED = "cancelled",
+  NO_SHOW = "no_show",
+}
+
+export enum AppointmentType {
+  CONSULTATION = "consultation",
+  FOLLOW_UP = "follow_up",
+  EMERGENCY = "emergency",
+  ROUTINE = "routine",
+}
+
+// Appointment Entity
+export interface Appointment extends BaseEntity {
+  title: string;
+  description?: string;
+  appointmentDate: string;
+  duration: number;
+  status: AppointmentStatus;
+  type: AppointmentType;
+  notes?: string;
+  googleEventId?: string;
+  googleMeetLink?: string;
+  patientId: number;
+  doctorId: number;
+  isActive: boolean;
+  patient?: Patient;
+  doctor?: User;
+}
+
 // Audit Log Entity
 export interface AuditLog extends BaseEntity {
-  action: 'CREATE' | 'UPDATE' | 'DELETE' | 'VIEW';
-  entityType: 'USER' | 'PATIENT' | 'PRESCRIPTION' | 'MEDICINE' | 'CID';
+  action: "CREATE" | "UPDATE" | "DELETE" | "VIEW";
+  entityType: "USER" | "PATIENT" | "PRESCRIPTION" | "MEDICINE" | "CID";
   entityId: number;
   userId: number;
   changes?: Record<string, any>;
