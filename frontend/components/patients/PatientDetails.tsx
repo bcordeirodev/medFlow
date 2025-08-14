@@ -1,343 +1,363 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { FormTextField, FormSelectField } from '@/components/common/FormField';
+import { useForm } from '@/hooks/useForm';
+import { usePatient } from '@/hooks/usePatients';
+import { PatientFormData, patientSchema } from '@/lib/schemas';
+import { ErrorHandler } from '@/utils/errorHandler';
+import { Cancel, Edit, Save } from '@mui/icons-material';
 import {
-    Box,
-    Typography,
-    Paper,
-    Grid,
-    Button,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    TextField,
-    FormControl,
-    InputLabel,
-    Select,
-    MenuItem,
-    Chip,
-    Divider,
-    IconButton,
-    CircularProgress,
-    Alert
+  Alert,
+  Box,
+  Button,
+  Chip,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  Grid,
+  IconButton,
+  Typography,
 } from '@mui/material';
-import {
-    Edit,
-    Save,
-    Cancel,
-    Person,
-    Email,
-    Phone,
-    CalendarToday,
-    LocationOn,
-    MedicalServices,
-    Notes
-} from '@mui/icons-material';
+import { useState } from 'react';
+import { useNotification } from '../../contexts';
 
-interface Patient {
-    id: number;
-    name: string;
-    email: string;
-    phone: string;
-    cpf: string;
-    birthDate: string;
-    gender: string;
-    address: string;
-    allergies: string;
-    medicalHistory: string;
-    observations: string;
-    doctorId: number;
-    isActive: boolean;
-    createdAt: string;
-    updatedAt: string;
-}
+// Patient interface now imported from @/types/entities.types
 
 interface PatientDetailsProps {
-    patientId: number;
-    onClose: () => void;
-    onUpdate: () => void;
+  patientId: number;
+  onClose: () => void;
+  onUpdate: () => void;
 }
 
-export default function PatientDetails({ patientId, onClose, onUpdate }: PatientDetailsProps) {
-    const [patient, setPatient] = useState<Patient | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [editing, setEditing] = useState(false);
-    const [error, setError] = useState('');
-    const [formData, setFormData] = useState<Partial<Patient>>({});
+export default function PatientDetails({
+  patientId,
+  onClose,
+  onUpdate,
+}: PatientDetailsProps) {
+  const { patient, isLoading, mutate } = usePatient(patientId);
+  const [editing, setEditing] = useState(false);
+  const { showSuccess } = useNotification();
 
-    useEffect(() => {
-        fetchPatient();
-    }, [patientId]);
-
-    const fetchPatient = async () => {
-        try {
-            const response = await axios.get(`/api/patients/${patientId}`);
-            setPatient(response.data);
-            setFormData(response.data);
-        } catch (error) {
-            setError('Erro ao carregar dados do paciente');
-            console.error('Erro ao buscar paciente:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleEdit = () => {
-        setEditing(true);
-        setFormData(patient || {});
-    };
-
-    const handleCancel = () => {
+  const form = useForm<PatientFormData>({
+    initialValues: {
+      name: patient?.name || '',
+      email: patient?.email || '',
+      phone: patient?.phone || '',
+      cpf: patient?.cpf || '',
+      birthDate: patient?.birthDate ? patient.birthDate.split('T')[0] : '',
+      gender: patient?.gender || 'Masculino',
+      address: patient?.address || '',
+      allergies: patient?.allergies || '',
+      medicalHistory: patient?.medicalHistory || '',
+      observations: patient?.observations || '',
+    },
+    validationSchema: patientSchema,
+    onSubmit: async values => {
+      try {
+        await mutate(async () => {
+          const response = await fetch(`/api/patients/${patientId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(values),
+          });
+          if (!response.ok) throw new Error('Erro ao atualizar');
+          return response.json();
+        }, false);
+        await mutate(); // Revalidate
+        showSuccess(`Paciente ${values.name} atualizado com sucesso`);
         setEditing(false);
-        setFormData(patient || {});
-        setError('');
-    };
+        onUpdate();
+      } catch (error: any) {
+        const errorMessage = ErrorHandler.extractErrorMessage(error);
+        ErrorHandler.logError(error, 'Atualização de paciente');
+        throw new Error(errorMessage);
+      }
+    },
+  });
 
-    const handleSave = async () => {
-        try {
-            await axios.patch(`/api/patients/${patientId}`, formData);
-            await fetchPatient();
-            setEditing(false);
-            onUpdate();
-        } catch (error) {
-            setError('Erro ao atualizar paciente');
-            console.error('Erro ao atualizar paciente:', error);
-        }
-    };
+  // Atualizar valores do formulário quando patient muda
+  if (patient && form.values.name === '') {
+    form.setValues({
+      name: patient.name || '',
+      email: patient.email || '',
+      phone: patient.phone || '',
+      cpf: patient.cpf || '',
+      birthDate: patient.birthDate ? patient.birthDate.split('T')[0] : '',
+      gender: patient.gender || 'Masculino',
+      address: patient.address || '',
+      allergies: patient.allergies || '',
+      medicalHistory: patient.medicalHistory || '',
+      observations: patient.observations || '',
+    });
+  }
 
-    const handleInputChange = (field: keyof Patient, value: string) => {
-        setFormData(prev => ({
-            ...prev,
-            [field]: value
-        }));
-    };
+  const handleEdit = () => {
+    setEditing(true);
+  };
 
-    if (loading) {
-        return (
-            <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-                <CircularProgress />
-            </Box>
-        );
-    }
+  const handleCancel = () => {
+    setEditing(false);
+    form.resetForm();
+  };
 
-    if (!patient) {
-        return (
-            <Alert severity="error">
-                Paciente não encontrado
-            </Alert>
-        );
-    }
+  const handleSave = () => {
+    form.handleSubmit(new Event('submit') as any);
+  };
 
+  if (isLoading) {
     return (
-        <Dialog open={true} onClose={onClose} maxWidth="md" fullWidth>
-            <DialogTitle>
-                <Box display="flex" justifyContent="space-between" alignItems="center">
-                    <Typography variant="h6" sx={{ color: '#F1F5F9', fontWeight: 600 }}>
-                        {editing ? 'Editar Paciente' : 'Detalhes do Paciente'}
-                    </Typography>
-                    {!editing && (
-                        <IconButton onClick={handleEdit} sx={{ color: '#3B82F6' }}>
-                            <Edit />
-                        </IconButton>
-                    )}
-                </Box>
-            </DialogTitle>
-
-            <DialogContent>
-                {error && (
-                    <Alert severity="error" sx={{ mb: 2 }}>
-                        {error}
-                    </Alert>
-                )}
-
-                <Grid container spacing={3}>
-                    {/* Informações Básicas */}
-                    <Grid item xs={12}>
-                        <Typography variant="h6" gutterBottom>
-                            Informações Básicas
-                        </Typography>
-                    </Grid>
-
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            fullWidth
-                            label="Nome"
-                            value={editing ? formData.name || '' : patient.name}
-                            onChange={(e) => handleInputChange('name', e.target.value)}
-                            disabled={!editing}
-                            InputProps={{
-                                startAdornment: <Person sx={{ mr: 1, color: 'action.active' }} />
-                            }}
-                        />
-                    </Grid>
-
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            fullWidth
-                            label="Email"
-                            value={editing ? formData.email || '' : patient.email}
-                            onChange={(e) => handleInputChange('email', e.target.value)}
-                            disabled={!editing}
-                            InputProps={{
-                                startAdornment: <Email sx={{ mr: 1, color: 'action.active' }} />
-                            }}
-                        />
-                    </Grid>
-
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            fullWidth
-                            label="Telefone"
-                            value={editing ? formData.phone || '' : patient.phone}
-                            onChange={(e) => handleInputChange('phone', e.target.value)}
-                            disabled={!editing}
-                            InputProps={{
-                                startAdornment: <Phone sx={{ mr: 1, color: 'action.active' }} />
-                            }}
-                        />
-                    </Grid>
-
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            fullWidth
-                            label="CPF"
-                            value={editing ? formData.cpf || '' : patient.cpf}
-                            onChange={(e) => handleInputChange('cpf', e.target.value)}
-                            disabled={!editing}
-                        />
-                    </Grid>
-
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            fullWidth
-                            label="Data de Nascimento"
-                            type="date"
-                            value={editing ? formData.birthDate || '' : patient.birthDate}
-                            onChange={(e) => handleInputChange('birthDate', e.target.value)}
-                            disabled={!editing}
-                            InputProps={{
-                                startAdornment: <CalendarToday sx={{ mr: 1, color: 'action.active' }} />
-                            }}
-                        />
-                    </Grid>
-
-                    <Grid item xs={12} md={6}>
-                        <FormControl fullWidth disabled={!editing}>
-                            <InputLabel>Gênero</InputLabel>
-                            <Select
-                                value={editing ? formData.gender || '' : patient.gender}
-                                onChange={(e) => handleInputChange('gender', e.target.value)}
-                                label="Gênero"
-                            >
-                                <MenuItem value="M">Masculino</MenuItem>
-                                <MenuItem value="F">Feminino</MenuItem>
-                            </Select>
-                        </FormControl>
-                    </Grid>
-
-                    <Grid item xs={12}>
-                        <TextField
-                            fullWidth
-                            label="Endereço"
-                            value={editing ? formData.address || '' : patient.address || ''}
-                            onChange={(e) => handleInputChange('address', e.target.value)}
-                            disabled={!editing}
-                            multiline
-                            rows={2}
-                            InputProps={{
-                                startAdornment: <LocationOn sx={{ mr: 1, color: 'action.active' }} />
-                            }}
-                        />
-                    </Grid>
-
-                    <Divider sx={{ width: '100%', my: 2 }} />
-
-                    {/* Informações Médicas */}
-                    <Grid item xs={12}>
-                        <Typography variant="h6" gutterBottom>
-                            Informações Médicas
-                        </Typography>
-                    </Grid>
-
-                    <Grid item xs={12}>
-                        <TextField
-                            fullWidth
-                            label="Alergias"
-                            value={editing ? formData.allergies || '' : patient.allergies || ''}
-                            onChange={(e) => handleInputChange('allergies', e.target.value)}
-                            disabled={!editing}
-                            multiline
-                            rows={2}
-                            InputProps={{
-                                startAdornment: <MedicalServices sx={{ mr: 1, color: 'action.active' }} />
-                            }}
-                        />
-                    </Grid>
-
-                    <Grid item xs={12}>
-                        <TextField
-                            fullWidth
-                            label="Histórico Médico"
-                            value={editing ? formData.medicalHistory || '' : patient.medicalHistory || ''}
-                            onChange={(e) => handleInputChange('medicalHistory', e.target.value)}
-                            disabled={!editing}
-                            multiline
-                            rows={3}
-                            InputProps={{
-                                startAdornment: <Notes sx={{ mr: 1, color: 'action.active' }} />
-                            }}
-                        />
-                    </Grid>
-
-                    <Grid item xs={12}>
-                        <TextField
-                            fullWidth
-                            label="Observações"
-                            value={editing ? formData.observations || '' : patient.observations || ''}
-                            onChange={(e) => handleInputChange('observations', e.target.value)}
-                            disabled={!editing}
-                            multiline
-                            rows={3}
-                            InputProps={{
-                                startAdornment: <Notes sx={{ mr: 1, color: 'action.active' }} />
-                            }}
-                        />
-                    </Grid>
-
-                    {/* Status */}
-                    <Grid item xs={12}>
-                        <Box display="flex" alignItems="center" gap={1}>
-                            <Typography variant="body2" color="text.secondary">
-                                Status:
-                            </Typography>
-                            <Chip
-                                label={patient.isActive ? 'Ativo' : 'Inativo'}
-                                color={patient.isActive ? 'success' : 'error'}
-                                size="small"
-                            />
-                        </Box>
-                    </Grid>
-                </Grid>
-            </DialogContent>
-
-            <DialogActions>
-                {editing ? (
-                    <>
-                        <Button onClick={handleCancel} startIcon={<Cancel />}>
-                            Cancelar
-                        </Button>
-                        <Button onClick={handleSave} variant="contained" startIcon={<Save />}>
-                            Salvar
-                        </Button>
-                    </>
-                ) : (
-                    <Button onClick={onClose}>
-                        Fechar
-                    </Button>
-                )}
-            </DialogActions>
-        </Dialog>
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="400px"
+      >
+        <CircularProgress />
+      </Box>
     );
-} 
+  }
+
+  if (!patient) {
+    return <Alert severity="error">Paciente não encontrado</Alert>;
+  }
+
+  return (
+    <Dialog open={true} onClose={onClose} maxWidth="md" fullWidth>
+      <DialogTitle>
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Typography variant="h6" sx={{ color: '#F1F5F9', fontWeight: 600 }}>
+            {editing ? 'Editar Paciente' : 'Detalhes do Paciente'}
+          </Typography>
+          {!editing && (
+            <IconButton onClick={handleEdit} sx={{ color: '#3B82F6' }}>
+              <Edit />
+            </IconButton>
+          )}
+        </Box>
+      </DialogTitle>
+
+      <DialogContent>
+        <Grid container spacing={3}>
+          {/* Informações Básicas */}
+          <Grid item xs={12}>
+            <Typography variant="h6" gutterBottom>
+              Informações Básicas
+            </Typography>
+          </Grid>
+
+          <Grid item xs={12} md={6}>
+            <FormTextField
+              name="name"
+              label="Nome"
+              value={editing ? form.values.name || '' : patient.name || ''}
+              onChange={value => form.setFieldValue('name', value)}
+              onBlur={() => form.setFieldTouched('name')}
+              error={form.errors.name}
+              touched={form.touched.name}
+              disabled={!editing}
+              required
+            />
+          </Grid>
+
+          <Grid item xs={12} md={6}>
+            <FormTextField
+              name="email"
+              label="Email"
+              type="email"
+              value={editing ? form.values.email || '' : patient.email || ''}
+              onChange={value => form.setFieldValue('email', value)}
+              onBlur={() => form.setFieldTouched('email')}
+              error={form.errors.email}
+              touched={form.touched.email}
+              disabled={!editing}
+              required
+            />
+          </Grid>
+
+          <Grid item xs={12} md={6}>
+            <FormTextField
+              name="phone"
+              label="Telefone"
+              value={editing ? form.values.phone || '' : patient.phone || ''}
+              onChange={value => form.setFieldValue('phone', value)}
+              onBlur={() => form.setFieldTouched('phone')}
+              error={form.errors.phone}
+              touched={form.touched.phone}
+              disabled={!editing}
+              required
+            />
+          </Grid>
+
+          <Grid item xs={12} md={6}>
+            <FormTextField
+              name="cpf"
+              label="CPF"
+              value={editing ? form.values.cpf || '' : patient.cpf || ''}
+              onChange={value => form.setFieldValue('cpf', value)}
+              onBlur={() => form.setFieldTouched('cpf')}
+              error={form.errors.cpf}
+              touched={form.touched.cpf}
+              disabled={!editing}
+              required
+            />
+          </Grid>
+
+          <Grid item xs={12} md={6}>
+            <FormTextField
+              name="birthDate"
+              label="Data de Nascimento"
+              type="date"
+              value={
+                editing ? form.values.birthDate || '' : patient.birthDate || ''
+              }
+              onChange={value => form.setFieldValue('birthDate', value)}
+              onBlur={() => form.setFieldTouched('birthDate')}
+              error={form.errors.birthDate}
+              touched={form.touched.birthDate}
+              disabled={!editing}
+              required
+              textFieldProps={{ InputLabelProps: { shrink: true } }}
+            />
+          </Grid>
+
+          <Grid item xs={12} md={6}>
+            <FormSelectField
+              name="gender"
+              label="Gênero"
+              value={editing ? form.values.gender || '' : patient.gender || ''}
+              onChange={value => form.setFieldValue('gender', value)}
+              onBlur={() => form.setFieldTouched('gender')}
+              error={form.errors.gender}
+              touched={form.touched.gender}
+              disabled={!editing}
+              options={[
+                { value: 'Masculino', label: 'Masculino' },
+                { value: 'Feminino', label: 'Feminino' },
+                { value: 'Outro', label: 'Outro' },
+              ]}
+              required
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <FormTextField
+              name="address"
+              label="Endereço"
+              value={
+                editing ? form.values.address || '' : patient.address || ''
+              }
+              onChange={value => form.setFieldValue('address', value)}
+              onBlur={() => form.setFieldTouched('address')}
+              error={form.errors.address}
+              touched={form.touched.address}
+              disabled={!editing}
+              required
+              multiline
+              rows={2}
+            />
+          </Grid>
+
+          <Divider sx={{ width: '100%', my: 2 }} />
+
+          {/* Informações Médicas */}
+          <Grid item xs={12}>
+            <Typography variant="h6" gutterBottom>
+              Informações Médicas
+            </Typography>
+          </Grid>
+
+          <Grid item xs={12}>
+            <FormTextField
+              name="allergies"
+              label="Alergias"
+              value={
+                editing ? form.values.allergies || '' : patient.allergies || ''
+              }
+              onChange={value => form.setFieldValue('allergies', value)}
+              onBlur={() => form.setFieldTouched('allergies')}
+              error={form.errors.allergies}
+              touched={form.touched.allergies}
+              disabled={!editing}
+              multiline
+              rows={2}
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <FormTextField
+              name="medicalHistory"
+              label="Histórico Médico"
+              value={
+                editing
+                  ? form.values.medicalHistory || ''
+                  : patient.medicalHistory || ''
+              }
+              onChange={value => form.setFieldValue('medicalHistory', value)}
+              onBlur={() => form.setFieldTouched('medicalHistory')}
+              error={form.errors.medicalHistory}
+              touched={form.touched.medicalHistory}
+              disabled={!editing}
+              multiline
+              rows={3}
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <FormTextField
+              name="observations"
+              label="Observações"
+              value={
+                editing
+                  ? form.values.observations || ''
+                  : patient.observations || ''
+              }
+              onChange={value => form.setFieldValue('observations', value)}
+              onBlur={() => form.setFieldTouched('observations')}
+              error={form.errors.observations}
+              touched={form.touched.observations}
+              disabled={!editing}
+              multiline
+              rows={3}
+            />
+          </Grid>
+
+          {/* Status */}
+          <Grid item xs={12}>
+            <Box display="flex" alignItems="center" gap={1}>
+              <Typography variant="body2" color="text.secondary">
+                Status:
+              </Typography>
+              <Chip
+                label={patient.isActive ? 'Ativo' : 'Inativo'}
+                color={patient.isActive ? 'success' : 'error'}
+                size="small"
+              />
+            </Box>
+          </Grid>
+        </Grid>
+      </DialogContent>
+
+      <DialogActions>
+        {editing ? (
+          <>
+            <Button onClick={handleCancel} startIcon={<Cancel />}>
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleSave}
+              variant="contained"
+              startIcon={<Save />}
+            >
+              Salvar
+            </Button>
+          </>
+        ) : (
+          <Button onClick={onClose}>Fechar</Button>
+        )}
+      </DialogActions>
+    </Dialog>
+  );
+}
