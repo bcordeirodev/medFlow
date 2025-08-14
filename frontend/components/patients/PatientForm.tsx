@@ -90,7 +90,7 @@ export default function PatientForm({
     } else {
       form.resetForm();
     }
-  }, [patient, form]);
+  }, [patient]); // Removido 'form' das dependências para evitar loop infinito
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
