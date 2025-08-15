@@ -253,31 +253,67 @@ export default function AppointmentDetails({
 
   // SEMPRE USAR FormTextField COM OPTIONAL CHAINING
   return (
-    <Dialog open onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>
-        <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Box display="flex" alignItems="center" gap={1}>
-            <CalendarToday sx={{ color: "#3B82F6" }} />
-            <Typography variant="h6" sx={{ fontWeight: 600 }}>
-              {editing ? "Editar Agendamento" : "Detalhes do Agendamento"}
-            </Typography>
-          </Box>
-          <Box>
-            {!editing && (
-              <IconButton
-                onClick={() => {
-                  setEditing(true);
-                  form.setValues(prepareEditingValues);
-                }}
-                sx={{ mr: 1 }}
-              >
-                <Edit />
-              </IconButton>
-            )}
-            <IconButton onClick={onClose}>
-              <Close />
+    <Dialog
+      open
+      onClose={onClose}
+      maxWidth="md"
+      fullWidth
+      PaperProps={{
+        sx: {
+          borderRadius: 3,
+          background: "linear-gradient(135deg, #1E293B 0%, #334155 100%)",
+        },
+      }}
+    >
+      <DialogTitle
+        sx={{
+          background: "linear-gradient(135deg, #1E3A8A 0%, #1E40AF 100%)",
+          color: "white",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          borderRadius: "12px 12px 0 0",
+          p: 3,
+        }}
+      >
+        <Box display="flex" alignItems="center" gap={2}>
+          <CalendarToday sx={{ color: "white", fontSize: 28 }} />
+          <Typography variant="h6" sx={{ fontWeight: 600, color: "white" }}>
+            {editing ? "Editar Agendamento" : "Detalhes do Agendamento"}
+          </Typography>
+        </Box>
+        <Box display="flex" gap={1}>
+          {!editing && (
+            <IconButton
+              onClick={() => {
+                setEditing(true);
+                form.setValues(prepareEditingValues);
+              }}
+              sx={{
+                color: "white",
+                border: "1px solid rgba(255, 255, 255, 0.3)",
+                "&:hover": {
+                  backgroundColor: "rgba(255, 255, 255, 0.1)",
+                  border: "1px solid rgba(255, 255, 255, 0.5)",
+                },
+              }}
+            >
+              <Edit />
             </IconButton>
-          </Box>
+          )}
+          <IconButton
+            onClick={onClose}
+            sx={{
+              color: "white",
+              border: "1px solid rgba(255, 255, 255, 0.3)",
+              "&:hover": {
+                backgroundColor: "rgba(255, 255, 255, 0.1)",
+                border: "1px solid rgba(255, 255, 255, 0.5)",
+              },
+            }}
+          >
+            <Close />
+          </IconButton>
         </Box>
       </DialogTitle>
 

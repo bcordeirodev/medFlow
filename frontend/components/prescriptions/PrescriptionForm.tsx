@@ -1,10 +1,11 @@
-'use client';
+"use client";
 
-import { useNotification } from '@/contexts';
-import { useCids } from '@/hooks/useCids';
-import { usePrescriptions } from '@/hooks/usePrescriptions';
-import { PatientsService } from '@/services/patients.service';
+import { useNotification } from "@/contexts";
+import { useCids } from "@/hooks/useCids";
+import { usePrescriptions } from "@/hooks/usePrescriptions";
+import { PatientsService } from "@/services/patients.service";
 import {
+  Assignment,
   Cancel,
   CheckCircle,
   Description,
@@ -13,7 +14,7 @@ import {
   Notes,
   Person,
   Save,
-} from '@mui/icons-material';
+} from "@mui/icons-material";
 import {
   Avatar,
   Box,
@@ -34,8 +35,8 @@ import {
   Stepper,
   TextField,
   Typography,
-} from '@mui/material';
-import { useEffect, useState, useMemo, useRef } from 'react';
+} from "@mui/material";
+import { useEffect, useState, useMemo, useRef } from "react";
 
 interface Patient {
   id: number;
@@ -65,20 +66,20 @@ export default function PrescriptionForm({
   const [loadingPatients, setLoadingPatients] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
   const [formData, setFormData] = useState({
-    patientId: '',
-    diagnosis: '',
-    prescription: '',
-    observations: '',
-    prescriptionDate: new Date().toISOString().split('T')[0],
-    validUntil: '',
+    patientId: "",
+    diagnosis: "",
+    prescription: "",
+    observations: "",
+    prescriptionDate: new Date().toISOString().split("T")[0],
+    validUntil: "",
   });
   const loadedPrescriptionId = useRef<number | null>(null);
 
   const steps = [
-    { label: 'Informações Básicas', icon: <Person /> },
-    { label: 'Diagnóstico', icon: <LocalHospital /> },
-    { label: 'Prescrição', icon: <Medication /> },
-    { label: 'Observações', icon: <Notes /> },
+    { label: "Informações Básicas", icon: <Person /> },
+    { label: "Diagnóstico", icon: <LocalHospital /> },
+    { label: "Prescrição", icon: <Medication /> },
+    { label: "Observações", icon: <Notes /> },
   ];
 
   // Effect para abrir/fechar modal
@@ -103,28 +104,28 @@ export default function PrescriptionForm({
       loadedPrescriptionId.current = prescription.id;
       // Atualiza formData apenas quando uma prescrição nova é carregada para edição
       setFormData({
-        patientId: prescription.patientId || '',
-        diagnosis: prescription.diagnosis || '',
-        prescription: prescription.prescription || '',
-        observations: prescription.observations || '',
+        patientId: prescription.patientId || "",
+        diagnosis: prescription.diagnosis || "",
+        prescription: prescription.prescription || "",
+        observations: prescription.observations || "",
         prescriptionDate: prescription.prescriptionDate
-          ? prescription.prescriptionDate.split('T')[0]
-          : new Date().toISOString().split('T')[0],
+          ? prescription.prescriptionDate.split("T")[0]
+          : new Date().toISOString().split("T")[0],
         validUntil:
           prescription.validUntil && prescription.validUntil !== null
-            ? prescription.validUntil.split('T')[0]
-            : '',
+            ? prescription.validUntil.split("T")[0]
+            : "",
       });
     } else if (open && !prescription && loadedPrescriptionId.current !== null) {
       loadedPrescriptionId.current = null;
       // Reset para nova prescrição
       setFormData({
-        patientId: '',
-        diagnosis: '',
-        prescription: '',
-        observations: '',
-        prescriptionDate: new Date().toISOString().split('T')[0],
-        validUntil: '',
+        patientId: "",
+        diagnosis: "",
+        prescription: "",
+        observations: "",
+        prescriptionDate: new Date().toISOString().split("T")[0],
+        validUntil: "",
       });
     }
   }, [open, prescription]);
@@ -135,8 +136,8 @@ export default function PrescriptionForm({
       const patients = await PatientsService.getPatients();
       setPatients(patients);
     } catch (error) {
-      console.error('Erro ao buscar pacientes:', error);
-      showError('Erro ao carregar lista de pacientes');
+      console.error("Erro ao buscar pacientes:", error);
+      showError("Erro ao carregar lista de pacientes");
       setPatients([]);
     } finally {
       setLoadingPatients(false);
@@ -145,7 +146,7 @@ export default function PrescriptionForm({
 
   const handleSubmit = async () => {
     if (!formData.patientId) {
-      showError('Selecione um paciente');
+      showError("Selecione um paciente");
       return;
     }
 
@@ -154,36 +155,36 @@ export default function PrescriptionForm({
     try {
       if (prescription) {
         await updatePrescription(prescription.id, formData);
-        showSuccess('Prescrição atualizada com sucesso');
+        showSuccess("Prescrição atualizada com sucesso");
       } else {
         await createPrescription(formData);
-        showSuccess('Prescrição criada com sucesso');
+        showSuccess("Prescrição criada com sucesso");
       }
       onSuccess?.();
       onClose();
     } catch (err: any) {
       console.log(err);
-      showError(err.response?.data?.message || 'Erro ao salvar prescrição');
+      showError(err.response?.data?.message || "Erro ao salvar prescrição");
     } finally {
       setLoading(false);
     }
   };
 
   const handleChange = (field: string, value: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: field === 'patientId' ? parseInt(value) || '' : value,
+      [field]: field === "patientId" ? parseInt(value) || "" : value,
     }));
   };
 
   const handleCidSelect = (cidId: number | null) => {
     setSelectedCid(cidId);
     if (cidId && cids) {
-      const selectedCidData = cids.find(c => c.id === cidId);
+      const selectedCidData = cids.find((c) => c.id === cidId);
       if (selectedCidData) {
         // Auto-preenche o diagnóstico com código e nome do CID
         const diagnosisText = `${selectedCidData.code} - ${selectedCidData.name}`;
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
           diagnosis: diagnosisText,
         }));
@@ -194,23 +195,23 @@ export default function PrescriptionForm({
   const handleNext = () => {
     // Validar step atual antes de avançar
     if (activeStep === 0 && !formData.patientId) {
-      showError('Selecione um paciente para continuar');
+      showError("Selecione um paciente para continuar");
       return;
     }
     if (activeStep === 1 && !formData.diagnosis?.trim()) {
-      showError('Preencha o diagnóstico para continuar');
+      showError("Preencha o diagnóstico para continuar");
       return;
     }
     if (activeStep === 2 && !formData.prescription?.trim()) {
-      showError('Preencha a prescrição para continuar');
+      showError("Preencha a prescrição para continuar");
       return;
     }
 
-    setActiveStep(prevActiveStep => prevActiveStep + 1);
+    setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
 
   const handleBack = () => {
-    setActiveStep(prevActiveStep => prevActiveStep - 1);
+    setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
   const handleReset = () => {
@@ -218,7 +219,9 @@ export default function PrescriptionForm({
   };
 
   const getSelectedPatient = () => {
-    return patients.find(p => p.id === parseInt(formData.patientId.toString()));
+    return patients.find(
+      (p) => p.id === parseInt(formData.patientId.toString())
+    );
   };
 
   return (
@@ -229,60 +232,51 @@ export default function PrescriptionForm({
       fullWidth
       PaperProps={{
         sx: {
-          background: 'linear-gradient(135deg, #1E293B 0%, #334155 100%)',
+          background: "linear-gradient(135deg, #1E293B 0%, #334155 100%)",
           borderRadius: 3,
-          border: '1px solid rgba(59, 130, 246, 0.1)',
+          border: "1px solid rgba(59, 130, 246, 0.1)",
         },
       }}
     >
       <DialogTitle
         sx={{
-          background: 'linear-gradient(135deg, #1E3A8A 0%, #1E40AF 100%)',
-          color: 'white',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          borderRadius: '12px 12px 0 0',
+          background: "linear-gradient(135deg, #1E3A8A 0%, #1E40AF 100%)",
+          color: "white",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          borderRadius: "12px 12px 0 0",
           p: 3,
         }}
       >
         <Box display="flex" alignItems="center" gap={2}>
-          <Avatar
-            sx={{
-              bgcolor: 'rgba(255, 255, 255, 0.2)',
-              color: 'white',
-              width: 48,
-              height: 48,
-            }}
-          >
-            <Description />
-          </Avatar>
+          <Assignment sx={{ color: "white", fontSize: 28 }} />
           <Box>
-            <Typography variant="h5" sx={{ fontWeight: 700, color: 'white' }}>
-              {prescription ? 'Editar Prescrição' : 'Nova Prescrição'}
+            <Typography variant="h6" sx={{ fontWeight: 600, color: "white" }}>
+              {prescription ? "Editar Prescrição" : "Nova Prescrição"}
             </Typography>
             <Typography
               variant="body2"
-              sx={{ color: 'rgba(255, 255, 255, 0.8)' }}
+              sx={{ color: "rgba(255, 255, 255, 0.8)" }}
             >
               {prescription
-                ? 'Atualize os dados da prescrição'
-                : 'Crie uma nova prescrição médica'}
+                ? "Atualize os dados da prescrição"
+                : "Crie uma nova prescrição médica"}
             </Typography>
           </Box>
         </Box>
         <IconButton
           onClick={onClose}
           sx={{
-            color: 'white',
-            border: '1px solid rgba(255, 255, 255, 0.3)',
-            '&:hover': {
-              backgroundColor: 'rgba(255, 255, 255, 0.1)',
-              border: '1px solid rgba(255, 255, 255, 0.5)',
+            color: "white",
+            border: "1px solid rgba(255, 255, 255, 0.3)",
+            "&:hover": {
+              backgroundColor: "rgba(255, 255, 255, 0.1)",
+              border: "1px solid rgba(255, 255, 255, 0.5)",
             },
           }}
         >
-          <Cancel sx={{ color: 'white' }} />
+          <Cancel />
         </IconButton>
       </DialogTitle>
 
@@ -291,11 +285,11 @@ export default function PrescriptionForm({
         <Paper
           elevation={0}
           sx={{
-            background: 'rgba(30, 41, 59, 0.5)',
+            background: "rgba(30, 41, 59, 0.5)",
             borderRadius: 2,
             p: 2,
             mb: 3,
-            border: '1px solid rgba(59, 130, 246, 0.1)',
+            border: "1px solid rgba(59, 130, 246, 0.1)",
           }}
         >
           <Stepper
@@ -313,17 +307,17 @@ export default function PrescriptionForm({
                         height: 32,
                         bgcolor:
                           activeStep >= index
-                            ? '#3B82F6'
-                            : 'rgba(148, 163, 184, 0.3)',
-                        color: activeStep >= index ? 'white' : '#94A3B8',
+                            ? "#3B82F6"
+                            : "rgba(148, 163, 184, 0.3)",
+                        color: activeStep >= index ? "white" : "#94A3B8",
                       }}
                     >
                       {step.icon}
                     </Avatar>
                   )}
                   sx={{
-                    '& .MuiStepLabel-label': {
-                      color: activeStep >= index ? '#F1F5F9' : '#94A3B8',
+                    "& .MuiStepLabel-label": {
+                      color: activeStep >= index ? "#F1F5F9" : "#94A3B8",
                       fontWeight: activeStep >= index ? 600 : 400,
                     },
                   }}
@@ -340,36 +334,36 @@ export default function PrescriptionForm({
           <Box>
             <Typography
               variant="h6"
-              sx={{ color: '#F1F5F9', mb: 2, fontWeight: 600 }}
+              sx={{ color: "#F1F5F9", mb: 2, fontWeight: 600 }}
             >
-              <Person sx={{ mr: 1, color: '#3B82F6' }} />
+              <Person sx={{ mr: 1, color: "#3B82F6" }} />
               Informações Básicas
             </Typography>
 
             <Grid container spacing={3}>
               <Grid item xs={12}>
                 <FormControl fullWidth required>
-                  <InputLabel sx={{ color: '#94A3B8' }}>Paciente</InputLabel>
+                  <InputLabel sx={{ color: "#94A3B8" }}>Paciente</InputLabel>
                   <Select
                     value={formData.patientId}
-                    onChange={e => handleChange('patientId', e.target.value)}
+                    onChange={(e) => handleChange("patientId", e.target.value)}
                     label="Paciente"
                     sx={{
-                      backgroundColor: 'rgba(15, 23, 42, 0.3)',
-                      '& .MuiOutlinedInput-notchedOutline': {
-                        borderColor: 'rgba(59, 130, 246, 0.2)',
+                      backgroundColor: "rgba(15, 23, 42, 0.3)",
+                      "& .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "rgba(59, 130, 246, 0.2)",
                       },
-                      '&:hover .MuiOutlinedInput-notchedOutline': {
-                        borderColor: 'rgba(59, 130, 246, 0.4)',
+                      "&:hover .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "rgba(59, 130, 246, 0.4)",
                       },
-                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#3B82F6',
+                      "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "#3B82F6",
                       },
-                      '& .MuiSelect-icon': {
-                        color: '#64748B',
+                      "& .MuiSelect-icon": {
+                        color: "#64748B",
                       },
-                      '& .MuiSelect-select': {
-                        color: '#F1F5F9',
+                      "& .MuiSelect-select": {
+                        color: "#F1F5F9",
                       },
                     }}
                   >
@@ -379,14 +373,14 @@ export default function PrescriptionForm({
                         Carregando pacientes...
                       </MenuItem>
                     ) : patients && patients.length > 0 ? (
-                      patients.map(patient => (
+                      patients.map((patient) => (
                         <MenuItem key={patient.id} value={patient.id}>
                           <Box display="flex" alignItems="center" gap={1}>
                             <Avatar
                               sx={{
                                 width: 24,
                                 height: 24,
-                                fontSize: '0.8rem',
+                                fontSize: "0.8rem",
                               }}
                             >
                               {patient.name.charAt(0)}
@@ -394,13 +388,13 @@ export default function PrescriptionForm({
                             <Box>
                               <Typography
                                 variant="body2"
-                                sx={{ color: '#F1F5F9' }}
+                                sx={{ color: "#F1F5F9" }}
                               >
                                 {patient.name}
                               </Typography>
                               <Typography
                                 variant="caption"
-                                sx={{ color: '#94A3B8' }}
+                                sx={{ color: "#94A3B8" }}
                               >
                                 {patient.email}
                               </Typography>
@@ -418,18 +412,18 @@ export default function PrescriptionForm({
                   <Paper
                     elevation={0}
                     sx={{
-                      background: 'rgba(16, 185, 129, 0.1)',
-                      border: '1px solid rgba(16, 185, 129, 0.2)',
+                      background: "rgba(16, 185, 129, 0.1)",
+                      border: "1px solid rgba(16, 185, 129, 0.2)",
                       borderRadius: 2,
                       p: 2,
                       mt: 2,
                     }}
                   >
                     <Box display="flex" alignItems="center" gap={1}>
-                      <CheckCircle sx={{ color: '#10B981' }} />
+                      <CheckCircle sx={{ color: "#10B981" }} />
                       <Typography
                         variant="body2"
-                        sx={{ color: '#10B981', fontWeight: 500 }}
+                        sx={{ color: "#10B981", fontWeight: 500 }}
                       >
                         Paciente selecionado: {getSelectedPatient()?.name}
                       </Typography>
@@ -444,29 +438,29 @@ export default function PrescriptionForm({
                   label="Data da Prescrição"
                   type="date"
                   value={formData.prescriptionDate}
-                  onChange={e =>
-                    handleChange('prescriptionDate', e.target.value)
+                  onChange={(e) =>
+                    handleChange("prescriptionDate", e.target.value)
                   }
                   required
                   InputLabelProps={{ shrink: true }}
                   sx={{
-                    '& .MuiOutlinedInput-root': {
-                      backgroundColor: 'rgba(15, 23, 42, 0.3)',
-                      '& fieldset': {
-                        borderColor: 'rgba(59, 130, 246, 0.2)',
+                    "& .MuiOutlinedInput-root": {
+                      backgroundColor: "rgba(15, 23, 42, 0.3)",
+                      "& fieldset": {
+                        borderColor: "rgba(59, 130, 246, 0.2)",
                       },
-                      '&:hover fieldset': {
-                        borderColor: 'rgba(59, 130, 246, 0.4)',
+                      "&:hover fieldset": {
+                        borderColor: "rgba(59, 130, 246, 0.4)",
                       },
-                      '&.Mui-focused fieldset': {
-                        borderColor: '#3B82F6',
+                      "&.Mui-focused fieldset": {
+                        borderColor: "#3B82F6",
                       },
                     },
-                    '& .MuiInputBase-input': {
-                      color: '#F1F5F9',
+                    "& .MuiInputBase-input": {
+                      color: "#F1F5F9",
                     },
-                    '& .MuiInputLabel-root': {
-                      color: '#94A3B8',
+                    "& .MuiInputLabel-root": {
+                      color: "#94A3B8",
                     },
                   }}
                 />
@@ -478,30 +472,30 @@ export default function PrescriptionForm({
                   label="Válida Até"
                   type="date"
                   value={formData.validUntil}
-                  onChange={e => handleChange('validUntil', e.target.value)}
+                  onChange={(e) => handleChange("validUntil", e.target.value)}
                   InputLabelProps={{ shrink: true }}
                   helperText="Data de validade da prescrição"
                   sx={{
-                    '& .MuiOutlinedInput-root': {
-                      backgroundColor: 'rgba(15, 23, 42, 0.3)',
-                      '& fieldset': {
-                        borderColor: 'rgba(59, 130, 246, 0.2)',
+                    "& .MuiOutlinedInput-root": {
+                      backgroundColor: "rgba(15, 23, 42, 0.3)",
+                      "& fieldset": {
+                        borderColor: "rgba(59, 130, 246, 0.2)",
                       },
-                      '&:hover fieldset': {
-                        borderColor: 'rgba(59, 130, 246, 0.4)',
+                      "&:hover fieldset": {
+                        borderColor: "rgba(59, 130, 246, 0.4)",
                       },
-                      '&.Mui-focused fieldset': {
-                        borderColor: '#3B82F6',
+                      "&.Mui-focused fieldset": {
+                        borderColor: "#3B82F6",
                       },
                     },
-                    '& .MuiInputBase-input': {
-                      color: '#F1F5F9',
+                    "& .MuiInputBase-input": {
+                      color: "#F1F5F9",
                     },
-                    '& .MuiInputLabel-root': {
-                      color: '#94A3B8',
+                    "& .MuiInputLabel-root": {
+                      color: "#94A3B8",
                     },
-                    '& .MuiFormHelperText-root': {
-                      color: '#64748B',
+                    "& .MuiFormHelperText-root": {
+                      color: "#64748B",
                     },
                   }}
                 />
@@ -514,45 +508,45 @@ export default function PrescriptionForm({
           <Box>
             <Typography
               variant="h6"
-              sx={{ color: '#F1F5F9', mb: 2, fontWeight: 600 }}
+              sx={{ color: "#F1F5F9", mb: 2, fontWeight: 600 }}
             >
-              <LocalHospital sx={{ mr: 1, color: '#EF4444' }} />
+              <LocalHospital sx={{ mr: 1, color: "#EF4444" }} />
               Diagnóstico
             </Typography>
 
             <FormControl fullWidth sx={{ mb: 3 }}>
-              <InputLabel sx={{ color: '#94A3B8' }}>CID (Opcional)</InputLabel>
+              <InputLabel sx={{ color: "#94A3B8" }}>CID (Opcional)</InputLabel>
               <Select
-                value={selectedCid || ''}
-                onChange={e =>
+                value={selectedCid || ""}
+                onChange={(e) =>
                   handleCidSelect(
                     e.target.value ? Number(e.target.value) : null
                   )
                 }
                 label="CID (Opcional)"
                 sx={{
-                  backgroundColor: 'rgba(15, 23, 42, 0.3)',
-                  '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'rgba(59, 130, 246, 0.2)',
+                  backgroundColor: "rgba(15, 23, 42, 0.3)",
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "rgba(59, 130, 246, 0.2)",
                   },
-                  '&:hover .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'rgba(59, 130, 246, 0.4)',
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "rgba(59, 130, 246, 0.4)",
                   },
-                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#3B82F6',
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#3B82F6",
                   },
-                  '& .MuiSelect-icon': {
-                    color: '#64748B',
+                  "& .MuiSelect-icon": {
+                    color: "#64748B",
                   },
-                  '& .MuiSelect-select': {
-                    color: '#F1F5F9',
+                  "& .MuiSelect-select": {
+                    color: "#F1F5F9",
                   },
                 }}
               >
                 <MenuItem value="">
                   <em>Selecione um CID (opcional)</em>
                 </MenuItem>
-                {cids?.map(cid => (
+                {cids?.map((cid) => (
                   <MenuItem key={cid.id} value={cid.id}>
                     <Box>
                       <Typography variant="body2" sx={{ fontWeight: 600 }}>
@@ -561,7 +555,7 @@ export default function PrescriptionForm({
                       {cid.description && (
                         <Typography
                           variant="caption"
-                          sx={{ color: '#64748B', display: 'block' }}
+                          sx={{ color: "#64748B", display: "block" }}
                         >
                           {cid.description}
                         </Typography>
@@ -576,32 +570,32 @@ export default function PrescriptionForm({
               fullWidth
               label="Diagnóstico"
               value={formData.diagnosis}
-              onChange={e => handleChange('diagnosis', e.target.value)}
+              onChange={(e) => handleChange("diagnosis", e.target.value)}
               required
               multiline
               rows={4}
               helperText="Descreva detalhadamente o diagnóstico do paciente"
               sx={{
-                '& .MuiOutlinedInput-root': {
-                  backgroundColor: 'rgba(15, 23, 42, 0.3)',
-                  '& fieldset': {
-                    borderColor: 'rgba(59, 130, 246, 0.2)',
+                "& .MuiOutlinedInput-root": {
+                  backgroundColor: "rgba(15, 23, 42, 0.3)",
+                  "& fieldset": {
+                    borderColor: "rgba(59, 130, 246, 0.2)",
                   },
-                  '&:hover fieldset': {
-                    borderColor: 'rgba(59, 130, 246, 0.4)',
+                  "&:hover fieldset": {
+                    borderColor: "rgba(59, 130, 246, 0.4)",
                   },
-                  '&.Mui-focused fieldset': {
-                    borderColor: '#3B82F6',
+                  "&.Mui-focused fieldset": {
+                    borderColor: "#3B82F6",
                   },
                 },
-                '& .MuiInputBase-input': {
-                  color: '#F1F5F9',
+                "& .MuiInputBase-input": {
+                  color: "#F1F5F9",
                 },
-                '& .MuiInputLabel-root': {
-                  color: '#94A3B8',
+                "& .MuiInputLabel-root": {
+                  color: "#94A3B8",
                 },
-                '& .MuiFormHelperText-root': {
-                  color: '#64748B',
+                "& .MuiFormHelperText-root": {
+                  color: "#64748B",
                 },
               }}
             />
@@ -612,9 +606,9 @@ export default function PrescriptionForm({
           <Box>
             <Typography
               variant="h6"
-              sx={{ color: '#F1F5F9', mb: 2, fontWeight: 600 }}
+              sx={{ color: "#F1F5F9", mb: 2, fontWeight: 600 }}
             >
-              <Medication sx={{ mr: 1, color: '#10B981' }} />
+              <Medication sx={{ mr: 1, color: "#10B981" }} />
               Prescrição
             </Typography>
 
@@ -622,32 +616,32 @@ export default function PrescriptionForm({
               fullWidth
               label="Prescrição"
               value={formData.prescription}
-              onChange={e => handleChange('prescription', e.target.value)}
+              onChange={(e) => handleChange("prescription", e.target.value)}
               required
               multiline
               rows={8}
               helperText="Descreva os medicamentos, dosagens e posologia prescritos"
               sx={{
-                '& .MuiOutlinedInput-root': {
-                  backgroundColor: 'rgba(15, 23, 42, 0.3)',
-                  '& fieldset': {
-                    borderColor: 'rgba(59, 130, 246, 0.2)',
+                "& .MuiOutlinedInput-root": {
+                  backgroundColor: "rgba(15, 23, 42, 0.3)",
+                  "& fieldset": {
+                    borderColor: "rgba(59, 130, 246, 0.2)",
                   },
-                  '&:hover fieldset': {
-                    borderColor: 'rgba(59, 130, 246, 0.4)',
+                  "&:hover fieldset": {
+                    borderColor: "rgba(59, 130, 246, 0.4)",
                   },
-                  '&.Mui-focused fieldset': {
-                    borderColor: '#3B82F6',
+                  "&.Mui-focused fieldset": {
+                    borderColor: "#3B82F6",
                   },
                 },
-                '& .MuiInputBase-input': {
-                  color: '#F1F5F9',
+                "& .MuiInputBase-input": {
+                  color: "#F1F5F9",
                 },
-                '& .MuiInputLabel-root': {
-                  color: '#94A3B8',
+                "& .MuiInputLabel-root": {
+                  color: "#94A3B8",
                 },
-                '& .MuiFormHelperText-root': {
-                  color: '#64748B',
+                "& .MuiFormHelperText-root": {
+                  color: "#64748B",
                 },
               }}
             />
@@ -658,9 +652,9 @@ export default function PrescriptionForm({
           <Box>
             <Typography
               variant="h6"
-              sx={{ color: '#F1F5F9', mb: 2, fontWeight: 600 }}
+              sx={{ color: "#F1F5F9", mb: 2, fontWeight: 600 }}
             >
-              <Notes sx={{ mr: 1, color: '#F59E0B' }} />
+              <Notes sx={{ mr: 1, color: "#F59E0B" }} />
               Observações
             </Typography>
 
@@ -668,31 +662,31 @@ export default function PrescriptionForm({
               fullWidth
               label="Observações"
               value={formData.observations}
-              onChange={e => handleChange('observations', e.target.value)}
+              onChange={(e) => handleChange("observations", e.target.value)}
               multiline
               rows={4}
               helperText="Observações adicionais sobre a prescrição (opcional)"
               sx={{
-                '& .MuiOutlinedInput-root': {
-                  backgroundColor: 'rgba(15, 23, 42, 0.3)',
-                  '& fieldset': {
-                    borderColor: 'rgba(59, 130, 246, 0.2)',
+                "& .MuiOutlinedInput-root": {
+                  backgroundColor: "rgba(15, 23, 42, 0.3)",
+                  "& fieldset": {
+                    borderColor: "rgba(59, 130, 246, 0.2)",
                   },
-                  '&:hover fieldset': {
-                    borderColor: 'rgba(59, 130, 246, 0.4)',
+                  "&:hover fieldset": {
+                    borderColor: "rgba(59, 130, 246, 0.4)",
                   },
-                  '&.Mui-focused fieldset': {
-                    borderColor: '#3B82F6',
+                  "&.Mui-focused fieldset": {
+                    borderColor: "#3B82F6",
                   },
                 },
-                '& .MuiInputBase-input': {
-                  color: '#F1F5F9',
+                "& .MuiInputBase-input": {
+                  color: "#F1F5F9",
                 },
-                '& .MuiInputLabel-root': {
-                  color: '#94A3B8',
+                "& .MuiInputLabel-root": {
+                  color: "#94A3B8",
                 },
-                '& .MuiFormHelperText-root': {
-                  color: '#64748B',
+                "& .MuiFormHelperText-root": {
+                  color: "#64748B",
                 },
               }}
             />
@@ -700,21 +694,32 @@ export default function PrescriptionForm({
         )}
 
         {/* Navegação entre steps */}
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", mt: 3 }}>
           <Button
             disabled={activeStep === 0}
             onClick={handleBack}
             sx={{
-              color: 'white',
-              border: '1px solid rgba(255, 255, 255, 0.3)',
-              '&:hover': {
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                border: '1px solid rgba(255, 255, 255, 0.5)',
+              border: "2px solid rgba(239, 68, 68, 0.6)",
+              color: "#EF4444",
+              fontWeight: 600,
+              px: 3,
+              py: 1.5,
+              borderRadius: 2,
+              backgroundColor: "rgba(239, 68, 68, 0.3)",
+              "&:hover": {
+                backgroundColor: "rgba(239, 68, 68, 0.5)",
+                border: "2px solid rgba(239, 68, 68, 0.8)",
+                transform: "translateY(-1px)",
+                boxShadow: "0 4px 12px rgba(239, 68, 68, 0.3)",
               },
-              '&:disabled': {
-                color: 'rgba(255, 255, 255, 0.3)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
+              "&:disabled": {
+                backgroundColor: "rgba(148, 163, 184, 0.3)",
+                border: "2px solid rgba(148, 163, 184, 0.6)",
+                color: "#94A3B8",
+                transform: "none",
+                boxShadow: "none",
               },
+              transition: "all 0.3s ease",
             }}
           >
             Anterior
@@ -725,27 +730,33 @@ export default function PrescriptionForm({
               <Button
                 onClick={handleSubmit}
                 variant="contained"
-                startIcon={
-                  loading ? (
-                    <CircularProgress size={20} sx={{ color: 'white' }} />
-                  ) : (
-                    <Save sx={{ color: 'white' }} />
-                  )
-                }
+                startIcon={loading ? <CircularProgress size={20} /> : <Save />}
                 disabled={loading}
                 sx={{
                   background:
-                    'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
+                    "linear-gradient(135deg, #059669 0%, #10B981 100%)",
+                  color: "white",
                   fontWeight: 600,
-                  border: '1px solid rgba(255, 255, 255, 0.3)',
-                  '&:hover': {
+                  px: 3,
+                  py: 1.5,
+                  borderRadius: 2,
+                  boxShadow: "0 4px 15px rgba(5, 150, 105, 0.4)",
+                  "&:hover": {
                     background:
-                      'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
-                    border: '1px solid rgba(255, 255, 255, 0.5)',
+                      "linear-gradient(135deg, #10B981 0%, #059669 100%)",
+                    boxShadow: "0 6px 20px rgba(5, 150, 105, 0.6)",
+                    transform: "translateY(-2px)",
                   },
+                  "&:disabled": {
+                    background:
+                      "linear-gradient(135deg, #475569 0%, #64748B 100%)",
+                    transform: "none",
+                    boxShadow: "none",
+                  },
+                  transition: "all 0.3s ease",
                 }}
               >
-                {loading ? 'Salvando...' : 'Salvar Prescrição'}
+                {loading ? "Salvando..." : "Salvar Prescrição"}
               </Button>
             ) : (
               <Button
@@ -753,14 +764,20 @@ export default function PrescriptionForm({
                 onClick={handleNext}
                 sx={{
                   background:
-                    'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+                    "linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)",
+                  color: "white",
                   fontWeight: 600,
-                  border: '1px solid rgba(255, 255, 255, 0.3)',
-                  '&:hover': {
+                  px: 3,
+                  py: 1.5,
+                  borderRadius: 2,
+                  boxShadow: "0 4px 15px rgba(59, 130, 246, 0.4)",
+                  "&:hover": {
                     background:
-                      'linear-gradient(135deg, #059669 0%, #047857 100%)',
-                    border: '1px solid rgba(255, 255, 255, 0.5)',
+                      "linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)",
+                    boxShadow: "0 6px 20px rgba(59, 130, 246, 0.6)",
+                    transform: "translateY(-2px)",
                   },
+                  transition: "all 0.3s ease",
                 }}
               >
                 Próximo

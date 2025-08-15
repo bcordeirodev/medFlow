@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { usePrescription } from '@/hooks/usePrescriptions';
-import { useState } from 'react';
+import { usePrescription } from "@/hooks/usePrescriptions";
+import { useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -17,8 +17,9 @@ import {
   CardContent,
   Grid,
   Chip,
-} from '@mui/material';
+} from "@mui/material";
 import {
+  Assignment,
   Close,
   ContentCopy,
   CheckCircle,
@@ -28,8 +29,7 @@ import {
   Schedule,
   MedicalServices,
   Description,
-  Assignment,
-} from '@mui/icons-material';
+} from "@mui/icons-material";
 
 interface PrescriptionDetailsProps {
   prescriptionId: number;
@@ -51,10 +51,10 @@ export default function PrescriptionDetails({
     const content = `
 PRESCRIÇÃO MÉDICA
 
-PACIENTE: ${prescription.patient?.name || 'Não informado'}
-MÉDICO: Dr. ${prescription.doctor?.name || 'Não informado'}
-DATA: ${new Date(prescription.prescriptionDate).toLocaleDateString('pt-BR')}
-VÁLIDA ATÉ: ${prescription.validUntil ? new Date(prescription.validUntil).toLocaleDateString('pt-BR') : 'Não especificado'}
+PACIENTE: ${prescription.patient?.name || "Não informado"}
+MÉDICO: Dr. ${prescription.doctor?.name || "Não informado"}
+DATA: ${new Date(prescription.prescriptionDate).toLocaleDateString("pt-BR")}
+VÁLIDA ATÉ: ${prescription.validUntil ? new Date(prescription.validUntil).toLocaleDateString("pt-BR") : "Não especificado"}
 
 DIAGNÓSTICO:
 ${prescription.diagnosis}
@@ -63,9 +63,9 @@ PRESCRIÇÃO:
 ${prescription.prescription}
 
 OBSERVAÇÕES:
-${prescription.observations || 'Nenhuma observação adicional.'}
+${prescription.observations || "Nenhuma observação adicional."}
 
-Status: ${prescription.isActive ? 'ATIVA' : 'INATIVA'}
+Status: ${prescription.isActive ? "ATIVA" : "INATIVA"}
 ID: ${prescription.id}
         `.trim();
 
@@ -74,12 +74,12 @@ ID: ${prescription.id}
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 2000);
     } catch (error) {
-      console.error('Erro ao copiar:', error);
+      console.error("Erro ao copiar:", error);
     }
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pt-BR');
+    return new Date(dateString).toLocaleDateString("pt-BR");
   };
 
   const isExpired = (validUntil: string) => {
@@ -120,25 +120,26 @@ ID: ${prescription.id}
       fullWidth
       PaperProps={{
         sx: {
-          borderRadius: 2,
-          maxHeight: '90vh',
+          borderRadius: 3,
+          background: "linear-gradient(135deg, #1E293B 0%, #334155 100%)",
+          maxHeight: "90vh",
         },
       }}
     >
       <DialogTitle
         sx={{
-          background: 'linear-gradient(135deg, #1976d2 0%, #1565c0 100%)',
-          color: 'white',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
+          background: "linear-gradient(135deg, #1E3A8A 0%, #1E40AF 100%)",
+          color: "white",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          borderRadius: "12px 12px 0 0",
+          p: 3,
         }}
       >
-        <Box display="flex" alignItems="center">
-          <Avatar sx={{ bgcolor: 'rgba(255, 255, 255, 0.2)', mr: 2 }}>
-            <LocalHospital />
-          </Avatar>
-          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+        <Box display="flex" alignItems="center" gap={2}>
+          <Assignment sx={{ color: "white", fontSize: 28 }} />
+          <Typography variant="h6" sx={{ fontWeight: 600, color: "white" }}>
             Prescrição Médica
           </Typography>
         </Box>
@@ -146,21 +147,25 @@ ID: ${prescription.id}
           <IconButton
             onClick={handleCopyContent}
             sx={{
-              color: copySuccess ? '#4caf50' : 'white',
-              '&:hover': {
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              color: copySuccess ? "#4caf50" : "white",
+              border: "1px solid rgba(255, 255, 255, 0.3)",
+              "&:hover": {
+                backgroundColor: "rgba(255, 255, 255, 0.1)",
+                border: "1px solid rgba(255, 255, 255, 0.5)",
               },
             }}
-            title={copySuccess ? 'Conteúdo copiado!' : 'Copiar conteúdo'}
+            title={copySuccess ? "Conteúdo copiado!" : "Copiar conteúdo"}
           >
             {copySuccess ? <CheckCircle /> : <ContentCopy />}
           </IconButton>
           <IconButton
             onClick={onClose}
             sx={{
-              color: 'white',
-              '&:hover': {
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              color: "white",
+              border: "1px solid rgba(255, 255, 255, 0.3)",
+              "&:hover": {
+                backgroundColor: "rgba(255, 255, 255, 0.1)",
+                border: "1px solid rgba(255, 255, 255, 0.5)",
               },
             }}
           >
@@ -176,7 +181,7 @@ ID: ${prescription.id}
             <Grid container spacing={3}>
               <Grid item xs={12} md={6}>
                 <Box display="flex" alignItems="center" mb={2}>
-                  <Avatar sx={{ bgcolor: '#1976d2', mr: 2 }}>
+                  <Avatar sx={{ bgcolor: "#1976d2", mr: 2 }}>
                     <Person />
                   </Avatar>
                   <Box>
@@ -184,21 +189,21 @@ ID: ${prescription.id}
                       PACIENTE
                     </Typography>
                     <Typography variant="h6">
-                      {prescription.patient?.name || 'Não informado'}
+                      {prescription.patient?.name || "Não informado"}
                     </Typography>
                   </Box>
                 </Box>
               </Grid>
               <Grid item xs={12} md={6}>
                 <Box display="flex" alignItems="center" mb={2}>
-                  <Avatar sx={{ bgcolor: '#2e7d32', mr: 2 }}>
+                  <Avatar sx={{ bgcolor: "#2e7d32", mr: 2 }}>
                     <LocalHospital />
                   </Avatar>
                 </Box>
               </Grid>
               <Grid item xs={12} md={6}>
                 <Box display="flex" alignItems="center">
-                  <Avatar sx={{ bgcolor: '#ed6c02', mr: 2 }}>
+                  <Avatar sx={{ bgcolor: "#ed6c02", mr: 2 }}>
                     <CalendarToday />
                   </Avatar>
                   <Box>
@@ -213,7 +218,7 @@ ID: ${prescription.id}
               </Grid>
               <Grid item xs={12} md={6}>
                 <Box display="flex" alignItems="center">
-                  <Avatar sx={{ bgcolor: '#9c27b0', mr: 2 }}>
+                  <Avatar sx={{ bgcolor: "#9c27b0", mr: 2 }}>
                     <Schedule />
                   </Avatar>
                   <Box>
@@ -223,7 +228,7 @@ ID: ${prescription.id}
                     <Typography variant="h6">
                       {prescription.validUntil
                         ? formatDate(prescription.validUntil)
-                        : 'Não especificado'}
+                        : "Não especificado"}
                     </Typography>
                   </Box>
                 </Box>
@@ -233,17 +238,17 @@ ID: ${prescription.id}
             {/* Status */}
             <Box display="flex" gap={1} mt={2}>
               <Chip
-                label={prescription.isActive ? 'ATIVA' : 'INATIVA'}
-                color={prescription.isActive ? 'success' : 'error'}
+                label={prescription.isActive ? "ATIVA" : "INATIVA"}
+                color={prescription.isActive ? "success" : "error"}
                 size="small"
               />
               {prescription.validUntil && (
                 <Chip
                   label={
-                    isExpired(prescription.validUntil) ? 'EXPIRADA' : 'VÁLIDA'
+                    isExpired(prescription.validUntil) ? "EXPIRADA" : "VÁLIDA"
                   }
                   color={
-                    isExpired(prescription.validUntil) ? 'error' : 'success'
+                    isExpired(prescription.validUntil) ? "error" : "success"
                   }
                   size="small"
                 />
@@ -256,7 +261,7 @@ ID: ${prescription.id}
         <Card sx={{ mb: 3 }}>
           <CardContent>
             <Box display="flex" alignItems="center" mb={2}>
-              <Assignment sx={{ mr: 2, color: '#1976d2' }} />
+              <Assignment sx={{ mr: 2, color: "#1976d2" }} />
               <Typography variant="h6" sx={{ fontWeight: 600 }}>
                 Diagnóstico
               </Typography>
@@ -265,9 +270,9 @@ ID: ${prescription.id}
               variant="body1"
               sx={{
                 p: 2,
-                backgroundColor: 'rgba(25, 118, 210, 0.05)',
+                backgroundColor: "rgba(25, 118, 210, 0.05)",
                 borderRadius: 1,
-                border: '1px solid rgba(25, 118, 210, 0.1)',
+                border: "1px solid rgba(25, 118, 210, 0.1)",
               }}
             >
               {prescription.diagnosis}
@@ -279,7 +284,7 @@ ID: ${prescription.id}
         <Card sx={{ mb: 3 }}>
           <CardContent>
             <Box display="flex" alignItems="center" mb={2}>
-              <MedicalServices sx={{ mr: 2, color: '#2e7d32' }} />
+              <MedicalServices sx={{ mr: 2, color: "#2e7d32" }} />
               <Typography variant="h6" sx={{ fontWeight: 600 }}>
                 Prescrição Médica
               </Typography>
@@ -287,12 +292,12 @@ ID: ${prescription.id}
             <Box
               sx={{
                 p: 2,
-                backgroundColor: 'rgba(46, 125, 50, 0.05)',
+                backgroundColor: "rgba(46, 125, 50, 0.05)",
                 borderRadius: 1,
-                border: '1px solid rgba(46, 125, 50, 0.1)',
-                whiteSpace: 'pre-wrap',
-                fontFamily: 'monospace',
-                fontSize: '0.9rem',
+                border: "1px solid rgba(46, 125, 50, 0.1)",
+                whiteSpace: "pre-wrap",
+                fontFamily: "monospace",
+                fontSize: "0.9rem",
                 lineHeight: 1.6,
               }}
             >
@@ -305,7 +310,7 @@ ID: ${prescription.id}
         <Card>
           <CardContent>
             <Box display="flex" alignItems="center" mb={2}>
-              <Description sx={{ mr: 2, color: '#ed6c02' }} />
+              <Description sx={{ mr: 2, color: "#ed6c02" }} />
               <Typography variant="h6" sx={{ fontWeight: 600 }}>
                 Observações
               </Typography>
@@ -313,11 +318,11 @@ ID: ${prescription.id}
             <Box
               sx={{
                 p: 2,
-                backgroundColor: 'rgba(237, 108, 2, 0.05)',
+                backgroundColor: "rgba(237, 108, 2, 0.05)",
                 borderRadius: 1,
-                border: '1px solid rgba(237, 108, 2, 0.1)',
-                whiteSpace: 'pre-wrap',
-                minHeight: '60px',
+                border: "1px solid rgba(237, 108, 2, 0.1)",
+                whiteSpace: "pre-wrap",
+                minHeight: "60px",
               }}
             >
               {prescription.observations || (

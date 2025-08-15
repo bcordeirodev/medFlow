@@ -1,15 +1,48 @@
-'use client';
+"use client";
 
-import { useAuth } from '@/contexts/AuthContext';
-import { LoginForm } from '@/components/auth';
-import { Dashboard } from '@/components/common';
+import { useAuth } from "@/contexts/AuthContext";
+import { LoginForm } from "@/components/auth";
+import { Dashboard } from "@/components/common";
+import LoadingTransition from "@/components/common/LoadingTransition";
+import { Fade } from "@mui/material";
 
 export default function Home() {
-    const { user } = useAuth();
+  const { user, loading, isTransitioning } = useAuth();
 
-    if (!user) {
-        return <LoginForm />;
-    }
+  // Mostrar loading inicial
+  if (loading) {
+    return (
+      <LoadingTransition
+        message="Inicializando aplicação..."
+        showProgress={false}
+      />
+    );
+  }
 
-    return <Dashboard />;
-} 
+  // Mostrar transição após login
+  if (isTransitioning) {
+    return (
+      <LoadingTransition message="Bem-vindo ao MedFlow!" showProgress={true} />
+    );
+  }
+
+  // Mostrar formulário de login
+  if (!user) {
+    return (
+      <Fade in timeout={500}>
+        <div>
+          <LoginForm />
+        </div>
+      </Fade>
+    );
+  }
+
+  // Mostrar dashboard com transição
+  return (
+    <Fade in timeout={800}>
+      <div>
+        <Dashboard />
+      </div>
+    </Fade>
+  );
+}

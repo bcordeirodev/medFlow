@@ -250,12 +250,6 @@ export default function Dashboard() {
             icon={<CalendarToday />}
             iconPosition="start"
           />
-          <Tab
-            label="Nova Receita"
-            value="new-prescription"
-            icon={<Add />}
-            iconPosition="start"
-          />
         </Tabs>
       </Paper>
 

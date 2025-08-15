@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { FormTextField, FormSelectField } from '@/components/common/FormField';
-import { useForm } from '@/hooks/useForm';
-import { usePatient } from '@/hooks/usePatients';
-import { PatientFormData, patientSchema } from '@/lib/schemas';
-import { ErrorHandler } from '@/utils/errorHandler';
-import { Cancel, Edit, Save } from '@mui/icons-material';
+import { FormTextField, FormSelectField } from "@/components/common/FormField";
+import { useForm } from "@/hooks/useForm";
+import { usePatient } from "@/hooks/usePatients";
+import { PatientFormData, patientSchema } from "@/lib/schemas";
+import { ErrorHandler } from "@/utils/errorHandler";
+import { Cancel, Edit, Save, Person } from "@mui/icons-material";
 import {
   Alert,
   Box,
@@ -20,9 +20,9 @@ import {
   Grid,
   IconButton,
   Typography,
-} from '@mui/material';
-import { useState } from 'react';
-import { useNotification } from '../../contexts';
+} from "@mui/material";
+import { useState } from "react";
+import { useNotification } from "../../contexts";
 
 // Patient interface now imported from @/types/entities.types
 
@@ -43,27 +43,27 @@ export default function PatientDetails({
 
   const form = useForm<PatientFormData>({
     initialValues: {
-      name: patient?.name || '',
-      email: patient?.email || '',
-      phone: patient?.phone || '',
-      cpf: patient?.cpf || '',
-      birthDate: patient?.birthDate ? patient.birthDate.split('T')[0] : '',
-      gender: patient?.gender || 'Masculino',
-      address: patient?.address || '',
-      allergies: patient?.allergies || '',
-      medicalHistory: patient?.medicalHistory || '',
-      observations: patient?.observations || '',
+      name: patient?.name || "",
+      email: patient?.email || "",
+      phone: patient?.phone || "",
+      cpf: patient?.cpf || "",
+      birthDate: patient?.birthDate ? patient.birthDate.split("T")[0] : "",
+      gender: patient?.gender || "M",
+      address: patient?.address || "",
+      allergies: patient?.allergies || "",
+      medicalHistory: patient?.medicalHistory || "",
+      observations: patient?.observations || "",
     },
     validationSchema: patientSchema,
-    onSubmit: async values => {
+    onSubmit: async (values) => {
       try {
         await mutate(async () => {
           const response = await fetch(`/api/patients/${patientId}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(values),
           });
-          if (!response.ok) throw new Error('Erro ao atualizar');
+          if (!response.ok) throw new Error("Erro ao atualizar");
           return response.json();
         }, false);
         await mutate(); // Revalidate
@@ -72,25 +72,25 @@ export default function PatientDetails({
         onUpdate();
       } catch (error: any) {
         const errorMessage = ErrorHandler.extractErrorMessage(error);
-        ErrorHandler.logError(error, 'Atualização de paciente');
+        ErrorHandler.logError(error, "Atualização de paciente");
         throw new Error(errorMessage);
       }
     },
   });
 
   // Atualizar valores do formulário quando patient muda
-  if (patient && form.values.name === '') {
+  if (patient && form.values.name === "") {
     form.setValues({
-      name: patient.name || '',
-      email: patient.email || '',
-      phone: patient.phone || '',
-      cpf: patient.cpf || '',
-      birthDate: patient.birthDate ? patient.birthDate.split('T')[0] : '',
-      gender: patient.gender || 'Masculino',
-      address: patient.address || '',
-      allergies: patient.allergies || '',
-      medicalHistory: patient.medicalHistory || '',
-      observations: patient.observations || '',
+      name: patient.name || "",
+      email: patient.email || "",
+      phone: patient.phone || "",
+      cpf: patient.cpf || "",
+      birthDate: patient.birthDate ? patient.birthDate.split("T")[0] : "",
+      gender: patient.gender || "M",
+      address: patient.address || "",
+      allergies: patient.allergies || "",
+      medicalHistory: patient.medicalHistory || "",
+      observations: patient.observations || "",
     });
   }
 
@@ -104,7 +104,7 @@ export default function PatientDetails({
   };
 
   const handleSave = () => {
-    form.handleSubmit(new Event('submit') as any);
+    form.handleSubmit(new Event("submit") as any);
   };
 
   if (isLoading) {
@@ -125,18 +125,50 @@ export default function PatientDetails({
   }
 
   return (
-    <Dialog open={true} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>
-        <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Typography variant="h6" sx={{ color: '#F1F5F9', fontWeight: 600 }}>
-            {editing ? 'Editar Paciente' : 'Detalhes do Paciente'}
+    <Dialog
+      open={true}
+      onClose={onClose}
+      maxWidth="md"
+      fullWidth
+      PaperProps={{
+        sx: {
+          borderRadius: 3,
+          background: "linear-gradient(135deg, #1E293B 0%, #334155 100%)",
+        },
+      }}
+    >
+      <DialogTitle
+        sx={{
+          background: "linear-gradient(135deg, #1E3A8A 0%, #1E40AF 100%)",
+          color: "white",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          borderRadius: "12px 12px 0 0",
+          p: 3,
+        }}
+      >
+        <Box display="flex" alignItems="center" gap={2}>
+          <Person sx={{ color: "white", fontSize: 28 }} />
+          <Typography variant="h6" sx={{ fontWeight: 600, color: "white" }}>
+            {editing ? "Editar Paciente" : "Detalhes do Paciente"}
           </Typography>
-          {!editing && (
-            <IconButton onClick={handleEdit} sx={{ color: '#3B82F6' }}>
-              <Edit />
-            </IconButton>
-          )}
         </Box>
+        {!editing && (
+          <IconButton
+            onClick={handleEdit}
+            sx={{
+              color: "white",
+              border: "1px solid rgba(255, 255, 255, 0.3)",
+              "&:hover": {
+                backgroundColor: "rgba(255, 255, 255, 0.1)",
+                border: "1px solid rgba(255, 255, 255, 0.5)",
+              },
+            }}
+          >
+            <Edit />
+          </IconButton>
+        )}
       </DialogTitle>
 
       <DialogContent>
@@ -152,9 +184,9 @@ export default function PatientDetails({
             <FormTextField
               name="name"
               label="Nome"
-              value={editing ? form.values.name || '' : patient.name || ''}
-              onChange={value => form.setFieldValue('name', value)}
-              onBlur={() => form.setFieldTouched('name')}
+              value={editing ? form.values.name || "" : patient.name || ""}
+              onChange={(value) => form.setFieldValue("name", value)}
+              onBlur={() => form.setFieldTouched("name")}
               error={form.errors.name}
               touched={form.touched.name}
               disabled={!editing}
@@ -167,9 +199,9 @@ export default function PatientDetails({
               name="email"
               label="Email"
               type="email"
-              value={editing ? form.values.email || '' : patient.email || ''}
-              onChange={value => form.setFieldValue('email', value)}
-              onBlur={() => form.setFieldTouched('email')}
+              value={editing ? form.values.email || "" : patient.email || ""}
+              onChange={(value) => form.setFieldValue("email", value)}
+              onBlur={() => form.setFieldTouched("email")}
               error={form.errors.email}
               touched={form.touched.email}
               disabled={!editing}
@@ -181,9 +213,9 @@ export default function PatientDetails({
             <FormTextField
               name="phone"
               label="Telefone"
-              value={editing ? form.values.phone || '' : patient.phone || ''}
-              onChange={value => form.setFieldValue('phone', value)}
-              onBlur={() => form.setFieldTouched('phone')}
+              value={editing ? form.values.phone || "" : patient.phone || ""}
+              onChange={(value) => form.setFieldValue("phone", value)}
+              onBlur={() => form.setFieldTouched("phone")}
               error={form.errors.phone}
               touched={form.touched.phone}
               disabled={!editing}
@@ -195,9 +227,9 @@ export default function PatientDetails({
             <FormTextField
               name="cpf"
               label="CPF"
-              value={editing ? form.values.cpf || '' : patient.cpf || ''}
-              onChange={value => form.setFieldValue('cpf', value)}
-              onBlur={() => form.setFieldTouched('cpf')}
+              value={editing ? form.values.cpf || "" : patient.cpf || ""}
+              onChange={(value) => form.setFieldValue("cpf", value)}
+              onBlur={() => form.setFieldTouched("cpf")}
               error={form.errors.cpf}
               touched={form.touched.cpf}
               disabled={!editing}
@@ -211,10 +243,10 @@ export default function PatientDetails({
               label="Data de Nascimento"
               type="date"
               value={
-                editing ? form.values.birthDate || '' : patient.birthDate || ''
+                editing ? form.values.birthDate || "" : patient.birthDate || ""
               }
-              onChange={value => form.setFieldValue('birthDate', value)}
-              onBlur={() => form.setFieldTouched('birthDate')}
+              onChange={(value) => form.setFieldValue("birthDate", value)}
+              onBlur={() => form.setFieldTouched("birthDate")}
               error={form.errors.birthDate}
               touched={form.touched.birthDate}
               disabled={!editing}
@@ -227,16 +259,15 @@ export default function PatientDetails({
             <FormSelectField
               name="gender"
               label="Gênero"
-              value={editing ? form.values.gender || '' : patient.gender || ''}
-              onChange={value => form.setFieldValue('gender', value)}
-              onBlur={() => form.setFieldTouched('gender')}
+              value={editing ? form.values.gender || "" : patient.gender || ""}
+              onChange={(value) => form.setFieldValue("gender", value)}
+              onBlur={() => form.setFieldTouched("gender")}
               error={form.errors.gender}
               touched={form.touched.gender}
               disabled={!editing}
               options={[
-                { value: 'Masculino', label: 'Masculino' },
-                { value: 'Feminino', label: 'Feminino' },
-                { value: 'Outro', label: 'Outro' },
+                { value: "M", label: "Masculino" },
+                { value: "F", label: "Feminino" },
               ]}
               required
             />
@@ -247,10 +278,10 @@ export default function PatientDetails({
               name="address"
               label="Endereço"
               value={
-                editing ? form.values.address || '' : patient.address || ''
+                editing ? form.values.address || "" : patient.address || ""
               }
-              onChange={value => form.setFieldValue('address', value)}
-              onBlur={() => form.setFieldTouched('address')}
+              onChange={(value) => form.setFieldValue("address", value)}
+              onBlur={() => form.setFieldTouched("address")}
               error={form.errors.address}
               touched={form.touched.address}
               disabled={!editing}
@@ -260,7 +291,7 @@ export default function PatientDetails({
             />
           </Grid>
 
-          <Divider sx={{ width: '100%', my: 2 }} />
+          <Divider sx={{ width: "100%", my: 2 }} />
 
           {/* Informações Médicas */}
           <Grid item xs={12}>
@@ -274,10 +305,10 @@ export default function PatientDetails({
               name="allergies"
               label="Alergias"
               value={
-                editing ? form.values.allergies || '' : patient.allergies || ''
+                editing ? form.values.allergies || "" : patient.allergies || ""
               }
-              onChange={value => form.setFieldValue('allergies', value)}
-              onBlur={() => form.setFieldTouched('allergies')}
+              onChange={(value) => form.setFieldValue("allergies", value)}
+              onBlur={() => form.setFieldTouched("allergies")}
               error={form.errors.allergies}
               touched={form.touched.allergies}
               disabled={!editing}
@@ -292,11 +323,11 @@ export default function PatientDetails({
               label="Histórico Médico"
               value={
                 editing
-                  ? form.values.medicalHistory || ''
-                  : patient.medicalHistory || ''
+                  ? form.values.medicalHistory || ""
+                  : patient.medicalHistory || ""
               }
-              onChange={value => form.setFieldValue('medicalHistory', value)}
-              onBlur={() => form.setFieldTouched('medicalHistory')}
+              onChange={(value) => form.setFieldValue("medicalHistory", value)}
+              onBlur={() => form.setFieldTouched("medicalHistory")}
               error={form.errors.medicalHistory}
               touched={form.touched.medicalHistory}
               disabled={!editing}
@@ -311,11 +342,11 @@ export default function PatientDetails({
               label="Observações"
               value={
                 editing
-                  ? form.values.observations || ''
-                  : patient.observations || ''
+                  ? form.values.observations || ""
+                  : patient.observations || ""
               }
-              onChange={value => form.setFieldValue('observations', value)}
-              onBlur={() => form.setFieldTouched('observations')}
+              onChange={(value) => form.setFieldValue("observations", value)}
+              onBlur={() => form.setFieldTouched("observations")}
               error={form.errors.observations}
               touched={form.touched.observations}
               disabled={!editing}
@@ -331,8 +362,8 @@ export default function PatientDetails({
                 Status:
               </Typography>
               <Chip
-                label={patient.isActive ? 'Ativo' : 'Inativo'}
-                color={patient.isActive ? 'success' : 'error'}
+                label={patient.isActive ? "Ativo" : "Inativo"}
+                color={patient.isActive ? "success" : "error"}
                 size="small"
               />
             </Box>

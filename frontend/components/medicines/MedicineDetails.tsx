@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { FormTextField } from '@/components/common/FormField';
-import { useMedicine } from '@/hooks/useMedicines';
-import { useForm } from '@/hooks/useForm';
-import { MedicineFormData, medicineSchema } from '@/lib/schemas';
-import { MedicinesService } from '@/services/medicines.service';
-import { ErrorHandler } from '@/utils/errorHandler';
-import { Cancel, Edit, Save } from '@mui/icons-material';
+import { FormTextField } from "@/components/common/FormField";
+import { useMedicine } from "@/hooks/useMedicines";
+import { useForm } from "@/hooks/useForm";
+import { MedicineFormData, medicineSchema } from "@/lib/schemas";
+import { MedicinesService } from "@/services/medicines.service";
+import { ErrorHandler } from "@/utils/errorHandler";
+import { Cancel, Edit, Save, MedicalServices } from "@mui/icons-material";
 import {
   Alert,
   Box,
@@ -21,9 +21,9 @@ import {
   Grid,
   IconButton,
   Typography,
-} from '@mui/material';
-import { useState } from 'react';
-import { useNotification } from '../../contexts';
+} from "@mui/material";
+import { useState } from "react";
+import { useNotification } from "../../contexts";
 
 interface MedicineDetailsProps {
   medicineId: number;
@@ -45,22 +45,20 @@ export default function MedicineDetails({
 
   const form = useForm<MedicineFormData>({
     initialValues: {
-      name: medicine?.name || '',
-      genericName: medicine?.genericName || '',
-      manufacturer: medicine?.manufacturer || '',
-      description: medicine?.description || '',
-      dosage: medicine?.dosage || '',
-      activeIngredient: medicine?.activeIngredient || '',
-      contraindications: medicine?.contraindications || '',
-      sideEffects: medicine?.sideEffects || '',
-      interactions: medicine?.interactions || '',
+      name: medicine?.name || "",
+      manufacturer: medicine?.manufacturer || "",
+      description: medicine?.description || "",
+      dosage: medicine?.dosage || "",
+      activeIngredient: medicine?.activeIngredient || "",
+      contraindications: medicine?.contraindications || "",
+      sideEffects: medicine?.sideEffects || "",
     },
     validationSchema: medicineSchema,
-    onSubmit: async values => {
+    onSubmit: async (values) => {
       try {
         if (isCreating) {
           await MedicinesService.createMedicine(values);
-          showSuccess('Medicamento criado com sucesso');
+          showSuccess("Medicamento criado com sucesso");
           onUpdate();
           onClose();
         } else {
@@ -74,7 +72,7 @@ export default function MedicineDetails({
         const errorMessage = ErrorHandler.extractErrorMessage(error);
         ErrorHandler.logError(
           error,
-          isCreating ? 'Criação de medicamento' : 'Atualização de medicamento'
+          isCreating ? "Criação de medicamento" : "Atualização de medicamento"
         );
         throw new Error(errorMessage);
       }
@@ -82,17 +80,15 @@ export default function MedicineDetails({
   });
 
   // Atualizar valores do formulário quando medicine muda
-  if (medicine && !isCreating && form.values.name === '') {
+  if (medicine && !isCreating && form.values.name === "") {
     form.setValues({
-      name: medicine.name || '',
-      genericName: medicine.genericName || '',
-      manufacturer: medicine.manufacturer || '',
-      description: medicine.description || '',
-      dosage: medicine.dosage || '',
-      activeIngredient: medicine.activeIngredient || '',
-      contraindications: medicine.contraindications || '',
-      sideEffects: medicine.sideEffects || '',
-      interactions: medicine.interactions || '',
+      name: medicine.name || "",
+      manufacturer: medicine.manufacturer || "",
+      description: medicine.description || "",
+      dosage: medicine.dosage || "",
+      activeIngredient: medicine.activeIngredient || "",
+      contraindications: medicine.contraindications || "",
+      sideEffects: medicine.sideEffects || "",
     });
   }
 
@@ -106,21 +102,35 @@ export default function MedicineDetails({
   };
 
   const handleSave = () => {
-    form.handleSubmit(new Event('submit') as any);
+    form.handleSubmit(new Event("submit") as any);
   };
 
   if (isLoading && !isCreating) {
     return (
-      <Dialog open={true} onClose={onClose} maxWidth="md" fullWidth>
+      <Dialog
+        open={true}
+        onClose={onClose}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            background: "linear-gradient(135deg, #1E293B 0%, #334155 100%)",
+          },
+        }}
+      >
         <DialogContent>
           <Box
             display="flex"
-            justifyContent="center"
+            flexDirection="column"
             alignItems="center"
+            justifyContent="center"
             minHeight="400px"
           >
-            <CircularProgress />
-            <Typography sx={{ ml: 2 }}>Carregando medicamento...</Typography>
+            <CircularProgress size={60} sx={{ mb: 2 }} />
+            <Typography variant="h6" sx={{ color: "#94A3B8" }}>
+              Carregando medicamento...
+            </Typography>
           </Box>
         </DialogContent>
       </Dialog>
@@ -129,34 +139,98 @@ export default function MedicineDetails({
 
   if (!medicine && !isCreating) {
     return (
-      <Dialog open={true} onClose={onClose} maxWidth="md" fullWidth>
+      <Dialog
+        open={true}
+        onClose={onClose}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            background: "linear-gradient(135deg, #1E293B 0%, #334155 100%)",
+          },
+        }}
+      >
         <DialogContent>
           <Alert severity="error">Medicamento não encontrado</Alert>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={onClose}>Fechar</Button>
+        <DialogActions sx={{ p: 3 }}>
+          <Button
+            onClick={onClose}
+            variant="outlined"
+            sx={{
+              border: "2px solid rgba(59, 130, 246, 0.6)",
+              color: "#3B82F6",
+              fontWeight: 600,
+              px: 3,
+              py: 1.5,
+              borderRadius: 2,
+              backgroundColor: "rgba(59, 130, 246, 0.3)",
+              "&:hover": {
+                backgroundColor: "rgba(59, 130, 246, 0.5)",
+                border: "2px solid rgba(59, 130, 246, 0.8)",
+                transform: "translateY(-1px)",
+                boxShadow: "0 4px 12px rgba(59, 130, 246, 0.3)",
+              },
+              transition: "all 0.3s ease",
+            }}
+          >
+            Fechar
+          </Button>
         </DialogActions>
       </Dialog>
     );
   }
 
   return (
-    <Dialog open={true} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>
-        <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Typography variant="h6" sx={{ color: '#F1F5F9', fontWeight: 600 }}>
+    <Dialog
+      open={true}
+      onClose={onClose}
+      maxWidth="md"
+      fullWidth
+      PaperProps={{
+        sx: {
+          borderRadius: 3,
+          background: "linear-gradient(135deg, #1E293B 0%, #334155 100%)",
+        },
+      }}
+    >
+      <DialogTitle
+        sx={{
+          background: "linear-gradient(135deg, #1E3A8A 0%, #1E40AF 100%)",
+          color: "white",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          borderRadius: "12px 12px 0 0",
+          p: 3,
+        }}
+      >
+        <Box display="flex" alignItems="center" gap={2}>
+          <MedicalServices sx={{ color: "white", fontSize: 28 }} />
+          <Typography variant="h6" sx={{ fontWeight: 600, color: "white" }}>
             {isCreating
-              ? 'Novo Medicamento'
+              ? "Novo Medicamento"
               : editing
-                ? 'Editar Medicamento'
-                : 'Detalhes do Medicamento'}
+                ? "Editar Medicamento"
+                : "Detalhes do Medicamento"}
           </Typography>
-          {!editing && !isCreating && (
-            <IconButton onClick={handleEdit} sx={{ color: '#3B82F6' }}>
-              <Edit />
-            </IconButton>
-          )}
         </Box>
+        {!editing && !isCreating && (
+          <IconButton
+            onClick={handleEdit}
+            sx={{
+              color: "white",
+              border: "1px solid rgba(255, 255, 255, 0.3)",
+              "&:hover": {
+                backgroundColor: "rgba(255, 255, 255, 0.1)",
+                border: "1px solid rgba(255, 255, 255, 0.5)",
+              },
+            }}
+          >
+            <Edit />
+          </IconButton>
+        )}
       </DialogTitle>
 
       <DialogContent>
@@ -166,7 +240,7 @@ export default function MedicineDetails({
             <Typography
               variant="h6"
               gutterBottom
-              sx={{ color: '#F1F5F9', fontWeight: 600 }}
+              sx={{ color: "#F1F5F9", fontWeight: 600 }}
             >
               Informações Básicas
             </Typography>
@@ -178,11 +252,11 @@ export default function MedicineDetails({
               label="Nome"
               value={
                 editing || isCreating
-                  ? form.values.name || ''
-                  : medicine?.name || ''
+                  ? form.values.name || ""
+                  : medicine?.name || ""
               }
-              onChange={value => form.setFieldValue('name', value)}
-              onBlur={() => form.setFieldTouched('name')}
+              onChange={(value) => form.setFieldValue("name", value)}
+              onBlur={() => form.setFieldTouched("name")}
               error={form.errors.name}
               touched={form.touched.name}
               disabled={!editing && !isCreating}
@@ -192,32 +266,15 @@ export default function MedicineDetails({
 
           <Grid item xs={12} md={6}>
             <FormTextField
-              name="genericName"
-              label="Nome Genérico"
-              value={
-                editing || isCreating
-                  ? form.values.genericName || ''
-                  : medicine?.genericName || ''
-              }
-              onChange={value => form.setFieldValue('genericName', value)}
-              onBlur={() => form.setFieldTouched('genericName')}
-              error={form.errors.genericName}
-              touched={form.touched.genericName}
-              disabled={!editing && !isCreating}
-            />
-          </Grid>
-
-          <Grid item xs={12} md={6}>
-            <FormTextField
               name="manufacturer"
               label="Fabricante"
               value={
                 editing || isCreating
-                  ? form.values.manufacturer || ''
-                  : medicine?.manufacturer || ''
+                  ? form.values.manufacturer || ""
+                  : medicine?.manufacturer || ""
               }
-              onChange={value => form.setFieldValue('manufacturer', value)}
-              onBlur={() => form.setFieldTouched('manufacturer')}
+              onChange={(value) => form.setFieldValue("manufacturer", value)}
+              onBlur={() => form.setFieldTouched("manufacturer")}
               error={form.errors.manufacturer}
               touched={form.touched.manufacturer}
               disabled={!editing && !isCreating}
@@ -230,11 +287,11 @@ export default function MedicineDetails({
               label="Dosagem"
               value={
                 editing || isCreating
-                  ? form.values.dosage || ''
-                  : medicine?.dosage || ''
+                  ? form.values.dosage || ""
+                  : medicine?.dosage || ""
               }
-              onChange={value => form.setFieldValue('dosage', value)}
-              onBlur={() => form.setFieldTouched('dosage')}
+              onChange={(value) => form.setFieldValue("dosage", value)}
+              onBlur={() => form.setFieldTouched("dosage")}
               error={form.errors.dosage}
               touched={form.touched.dosage}
               disabled={!editing && !isCreating}
@@ -247,11 +304,13 @@ export default function MedicineDetails({
               label="Princípio Ativo"
               value={
                 editing || isCreating
-                  ? form.values.activeIngredient || ''
-                  : medicine?.activeIngredient || ''
+                  ? form.values.activeIngredient || ""
+                  : medicine?.activeIngredient || ""
               }
-              onChange={value => form.setFieldValue('activeIngredient', value)}
-              onBlur={() => form.setFieldTouched('activeIngredient')}
+              onChange={(value) =>
+                form.setFieldValue("activeIngredient", value)
+              }
+              onBlur={() => form.setFieldTouched("activeIngredient")}
               error={form.errors.activeIngredient}
               touched={form.touched.activeIngredient}
               disabled={!editing && !isCreating}
@@ -264,11 +323,11 @@ export default function MedicineDetails({
               label="Descrição"
               value={
                 editing || isCreating
-                  ? form.values.description || ''
-                  : medicine?.description || ''
+                  ? form.values.description || ""
+                  : medicine?.description || ""
               }
-              onChange={value => form.setFieldValue('description', value)}
-              onBlur={() => form.setFieldTouched('description')}
+              onChange={(value) => form.setFieldValue("description", value)}
+              onBlur={() => form.setFieldTouched("description")}
               error={form.errors.description}
               touched={form.touched.description}
               disabled={!editing && !isCreating}
@@ -277,7 +336,7 @@ export default function MedicineDetails({
             />
           </Grid>
 
-          <Divider sx={{ width: '100%', my: 2 }} />
+          <Divider sx={{ width: "100%", my: 2 }} />
 
           {/* Informações de Segurança */}
           <Grid item xs={12}>
@@ -292,11 +351,13 @@ export default function MedicineDetails({
               label="Contraindicações"
               value={
                 editing || isCreating
-                  ? form.values.contraindications || ''
-                  : medicine?.contraindications || ''
+                  ? form.values.contraindications || ""
+                  : medicine?.contraindications || ""
               }
-              onChange={value => form.setFieldValue('contraindications', value)}
-              onBlur={() => form.setFieldTouched('contraindications')}
+              onChange={(value) =>
+                form.setFieldValue("contraindications", value)
+              }
+              onBlur={() => form.setFieldTouched("contraindications")}
               error={form.errors.contraindications}
               touched={form.touched.contraindications}
               disabled={!editing && !isCreating}
@@ -311,32 +372,13 @@ export default function MedicineDetails({
               label="Efeitos Colaterais"
               value={
                 editing || isCreating
-                  ? form.values.sideEffects || ''
-                  : medicine?.sideEffects || ''
+                  ? form.values.sideEffects || ""
+                  : medicine?.sideEffects || ""
               }
-              onChange={value => form.setFieldValue('sideEffects', value)}
-              onBlur={() => form.setFieldTouched('sideEffects')}
+              onChange={(value) => form.setFieldValue("sideEffects", value)}
+              onBlur={() => form.setFieldTouched("sideEffects")}
               error={form.errors.sideEffects}
               touched={form.touched.sideEffects}
-              disabled={!editing && !isCreating}
-              multiline
-              rows={3}
-            />
-          </Grid>
-
-          <Grid item xs={12}>
-            <FormTextField
-              name="interactions"
-              label="Interações"
-              value={
-                editing || isCreating
-                  ? form.values.interactions || ''
-                  : medicine?.interactions || ''
-              }
-              onChange={value => form.setFieldValue('interactions', value)}
-              onBlur={() => form.setFieldTouched('interactions')}
-              error={form.errors.interactions}
-              touched={form.touched.interactions}
               disabled={!editing && !isCreating}
               multiline
               rows={3}
@@ -350,8 +392,8 @@ export default function MedicineDetails({
                 Status:
               </Typography>
               <Chip
-                label={medicine?.isActive ? 'Ativo' : 'Inativo'}
-                color={medicine?.isActive ? 'success' : 'error'}
+                label={medicine?.isActive ? "Ativo" : "Inativo"}
+                color={medicine?.isActive ? "success" : "error"}
                 size="small"
               />
             </Box>
@@ -359,22 +401,84 @@ export default function MedicineDetails({
         </Grid>
       </DialogContent>
 
-      <DialogActions>
+      <DialogActions sx={{ p: 3 }}>
         {editing ? (
           <>
-            <Button onClick={handleCancel} startIcon={<Cancel />}>
+            <Button
+              onClick={handleCancel}
+              startIcon={<Cancel />}
+              sx={{
+                border: "2px solid rgba(239, 68, 68, 0.6)",
+                color: "#EF4444",
+                fontWeight: 600,
+                px: 3,
+                py: 1.5,
+                borderRadius: 2,
+                backgroundColor: "rgba(239, 68, 68, 0.3)",
+                "&:hover": {
+                  backgroundColor: "rgba(239, 68, 68, 0.5)",
+                  border: "2px solid rgba(239, 68, 68, 0.8)",
+                  transform: "translateY(-1px)",
+                  boxShadow: "0 4px 12px rgba(239, 68, 68, 0.3)",
+                },
+                transition: "all 0.3s ease",
+              }}
+            >
               Cancelar
             </Button>
             <Button
               onClick={handleSave}
               variant="contained"
               startIcon={<Save />}
+              sx={{
+                background: "linear-gradient(135deg, #059669 0%, #10B981 100%)",
+                color: "white",
+                fontWeight: 600,
+                px: 3,
+                py: 1.5,
+                borderRadius: 2,
+                boxShadow: "0 4px 15px rgba(5, 150, 105, 0.4)",
+                "&:hover": {
+                  background:
+                    "linear-gradient(135deg, #10B981 0%, #059669 100%)",
+                  boxShadow: "0 6px 20px rgba(5, 150, 105, 0.6)",
+                  transform: "translateY(-2px)",
+                },
+                "&:disabled": {
+                  background:
+                    "linear-gradient(135deg, #475569 0%, #64748B 100%)",
+                  transform: "none",
+                  boxShadow: "none",
+                },
+                transition: "all 0.3s ease",
+              }}
             >
-              Salvar
+              Salvar Medicamento
             </Button>
           </>
         ) : (
-          <Button onClick={onClose}>Fechar</Button>
+          <Button
+            onClick={onClose}
+            variant="outlined"
+            sx={{
+              border: "2px solid rgba(59, 130, 246, 0.6)",
+              color: "#3B82F6",
+              fontWeight: 600,
+              px: 3,
+              py: 1.5,
+              borderRadius: 2,
+              backgroundColor: "rgba(59, 130, 246, 0.3)",
+              "&:hover": {
+                backgroundColor: "rgba(59, 130, 246, 0.5)",
+                border: "2px solid rgba(59, 130, 246, 0.8)",
+                transform: "translateY(-1px)",
+                boxShadow: "0 4px 12px rgba(59, 130, 246, 0.3)",
+              },
+              transition: "all 0.3s ease",
+            }}
+          >
+            Fechar
+          </Button>
         )}
       </DialogActions>
     </Dialog>

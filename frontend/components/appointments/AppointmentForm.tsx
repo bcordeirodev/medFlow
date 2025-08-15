@@ -157,11 +157,32 @@ export default function AppointmentForm({
 
   // SEMPRE USAR FormTextField/FormSelectField
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>
-        <Box display="flex" alignItems="center" gap={1}>
-          <CalendarToday sx={{ color: "#3B82F6" }} />
-          <Typography variant="h6" sx={{ color: "#1E293B", fontWeight: 600 }}>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="md"
+      fullWidth
+      PaperProps={{
+        sx: {
+          borderRadius: 3,
+          background: "linear-gradient(135deg, #1E293B 0%, #334155 100%)",
+        },
+      }}
+    >
+      <DialogTitle
+        sx={{
+          background: "linear-gradient(135deg, #1E3A8A 0%, #1E40AF 100%)",
+          color: "white",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          borderRadius: "12px 12px 0 0",
+          p: 3,
+        }}
+      >
+        <Box display="flex" alignItems="center" gap={2}>
+          <CalendarToday sx={{ color: "white", fontSize: 28 }} />
+          <Typography variant="h6" sx={{ fontWeight: 600, color: "white" }}>
             {appointment ? "Editar Agendamento" : "Novo Agendamento"}
           </Typography>
         </Box>
@@ -201,7 +222,7 @@ export default function AppointmentForm({
               />
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12} md={6} mt={3}>
               <FormTextField
                 name="appointmentDate"
                 label="Data e Hora"
@@ -295,12 +316,27 @@ export default function AppointmentForm({
           </Grid>
         </DialogContent>
 
-        <DialogActions sx={{ px: 3, pb: 2 }}>
+        <DialogActions sx={{ p: 3 }}>
           <Button
             onClick={onClose}
             disabled={form.isSubmitting}
             startIcon={<Cancel />}
-            sx={{ mr: 1 }}
+            sx={{
+              border: "2px solid rgba(239, 68, 68, 0.6)",
+              color: "#EF4444",
+              fontWeight: 600,
+              px: 3,
+              py: 1.5,
+              borderRadius: 2,
+              backgroundColor: "rgba(239, 68, 68, 0.3)",
+              "&:hover": {
+                backgroundColor: "rgba(239, 68, 68, 0.5)",
+                border: "2px solid rgba(239, 68, 68, 0.8)",
+                transform: "translateY(-1px)",
+                boxShadow: "0 4px 12px rgba(239, 68, 68, 0.3)",
+              },
+              transition: "all 0.3s ease",
+            }}
           >
             Cancelar
           </Button>
@@ -312,11 +348,27 @@ export default function AppointmentForm({
               form.isSubmitting ? <CircularProgress size={20} /> : <Save />
             }
             sx={{
-              background: "linear-gradient(45deg, #3B82F6 30%, #1D4ED8 90%)",
+              background: "linear-gradient(135deg, #059669 0%, #10B981 100%)",
+              color: "white",
+              fontWeight: 600,
               px: 3,
+              py: 1.5,
+              borderRadius: 2,
+              boxShadow: "0 4px 15px rgba(5, 150, 105, 0.4)",
+              "&:hover": {
+                background: "linear-gradient(135deg, #10B981 0%, #059669 100%)",
+                boxShadow: "0 6px 20px rgba(5, 150, 105, 0.6)",
+                transform: "translateY(-2px)",
+              },
+              "&:disabled": {
+                background: "linear-gradient(135deg, #475569 0%, #64748B 100%)",
+                transform: "none",
+                boxShadow: "none",
+              },
+              transition: "all 0.3s ease",
             }}
           >
-            {form.isSubmitting ? "Salvando..." : "Salvar"}
+            {form.isSubmitting ? "Salvando..." : "Salvar Agendamento"}
           </Button>
         </DialogActions>
       </form>
